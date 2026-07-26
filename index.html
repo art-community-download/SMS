@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SMSG ELITE - Realtime Messenger Hub</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMSG ELITE - Mobile First Realtime Hub</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,21 +19,21 @@
 
     <style>
         /* ==========================================================================
-           1. CSS VARIABLES & MOBILE-FIRST RESET
+           1. CORE RESET & MOBILE-FIRST BASE STYLES
            ========================================================================== */
         :root {
             --bg-dark: #070a12;
-            --bg-surface: rgba(15, 22, 38, 0.7);
-            --bg-glass: rgba(22, 31, 52, 0.55);
-            --bg-glass-strong: rgba(26, 37, 63, 0.85);
-            
+            --bg-surface: rgba(15, 22, 38, 0.75);
+            --bg-glass: rgba(22, 31, 52, 0.6);
+            --bg-glass-strong: rgba(26, 37, 63, 0.9);
+
             --border-glass: rgba(255, 255, 255, 0.08);
             --border-glass-bright: rgba(255, 255, 255, 0.18);
 
             --primary: #6366f1;
-            --primary-glow: rgba(99, 102, 241, 0.35);
+            --primary-glow: rgba(99, 102, 241, 0.4);
             --accent: #06b6d4;
-            --accent-glow: rgba(6, 182, 212, 0.35);
+            --accent-glow: rgba(6, 182, 212, 0.4);
 
             --status-active: #10b981;
             --status-active-glow: rgba(16, 185, 129, 0.4);
@@ -46,77 +46,84 @@
             --text-muted: #94a3b8;
             --text-dim: #64748b;
 
-            --radius-xl: 24px;
-            --radius-lg: 18px;
+            --radius-xl: 20px;
+            --radius-lg: 16px;
             --radius-md: 12px;
             --radius-sm: 8px;
             --radius-pill: 9999px;
 
-            --safe-top: env(safe-area-inset-top, 0px);
-            --safe-bottom: env(safe-area-inset-bottom, 0px);
-            
+            --touch-target: 44px; /* Touch size target */
             --transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        * {
+        /* Prevent Horizontal Scroll Globally */
+        *, *::before, *::after {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             -webkit-tap-highlight-color: transparent;
             word-break: break-word;
         }
 
-        html {
-            scroll-behavior: smooth;
+        html, body {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden !important;
             background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            scroll-behavior: smooth;
         }
 
         body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
             min-height: 100vh;
-            padding-bottom: calc(90px + var(--safe-bottom));
-            overflow-x: hidden;
+            padding-bottom: 90px; /* Space for floating bottom nav */
             position: relative;
         }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        /* Responsive Images */
+        img {
+            max-width: 100%;
+            height: auto;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: var(--bg-dark); }
         ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
 
-        /* Background Ambient Glow Orbs */
+        /* Floating Background Gradient Orbs */
         .ambient-bg {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
             z-index: -1; pointer-events: none; overflow: hidden;
         }
         .orb {
-            position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.32;
+            position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.3;
             animation: floatOrb 20s infinite alternate ease-in-out;
         }
-        .orb-1 { top: -10%; left: -10%; width: 380px; height: 380px; background: var(--primary); }
-        .orb-2 { bottom: 10%; right: -10%; width: 420px; height: 420px; background: var(--accent); }
-        .orb-3 { top: 40%; left: 30%; width: 300px; height: 300px; background: #8b5cf6; animation-delay: -5s; }
+        .orb-1 { top: -10%; left: -10%; width: 350px; height: 350px; background: var(--primary); }
+        .orb-2 { bottom: 5%; right: -10%; width: 380px; height: 380px; background: var(--accent); }
 
         @keyframes floatOrb {
             0% { transform: translate(0, 0) scale(1); }
-            50% { transform: translate(40px, 30px) scale(1.08); }
-            100% { transform: translate(-30px, 60px) scale(0.92); }
+            100% { transform: translate(30px, 40px) scale(1.08); }
         }
 
-        /* Glassmorphism Utility */
+        /* Glassmorphism Panel */
         .glass-panel {
             background: var(--bg-glass);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--border-glass);
-            border-radius: var(--radius-lg);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            border-radius: var(--radius-xl);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+            width: 100%;
         }
 
+        /* Container Limit */
         .container {
             width: 100%;
             max-width: 1200px;
@@ -124,7 +131,7 @@
             padding: 0 16px;
         }
 
-        /* Ripple Effect */
+        /* Touch Ripple Effect */
         .ripple {
             position: relative;
             overflow: hidden;
@@ -142,18 +149,18 @@
         }
 
         /* ==========================================================================
-           2. TOP APP HEADER (Sticky & Safe Area)
+           2. HEADER & NAVIGATION (Mobile Hamburger + Desktop Menu)
            ========================================================================== */
         .top-app-bar {
             position: sticky;
             top: 0;
             z-index: 100;
-            background: rgba(7, 10, 18, 0.82);
+            background: rgba(7, 10, 18, 0.88);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border-glass);
-            padding-top: calc(10px + var(--safe-top));
-            padding-bottom: 12px;
+            padding: 12px 0;
+            width: 100%;
         }
 
         .header-flex {
@@ -161,23 +168,25 @@
             align-items: center;
             justify-content: space-between;
             gap: 12px;
+            width: 100%;
         }
 
         .brand-box {
             display: flex;
             align-items: center;
             gap: 10px;
+            text-decoration: none;
         }
 
         .brand-logo {
-            width: 38px;
-            height: 38px;
+            width: 40px;
+            height: 40px;
             border-radius: var(--radius-md);
             background: linear-gradient(135deg, var(--primary), var(--accent));
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.1rem;
+            font-size: 1.15rem;
             color: #fff;
             box-shadow: 0 0 15px var(--primary-glow);
             flex-shrink: 0;
@@ -185,17 +194,16 @@
 
         .brand-info h1 {
             font-family: 'Outfit', sans-serif;
-            font-size: 1.05rem;
+            font-size: clamp(1rem, 3.5vw, 1.25rem);
             font-weight: 700;
             line-height: 1.1;
-            letter-spacing: -0.3px;
             background: linear-gradient(to right, #fff, #cbd5e1);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
         .brand-info p {
-            font-size: 0.7rem;
+            font-size: clamp(0.68rem, 2.2vw, 0.78rem);
             color: var(--text-dim);
             font-weight: 500;
         }
@@ -203,21 +211,20 @@
         .header-actions {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .live-pill {
             display: flex;
             align-items: center;
             gap: 6px;
-            padding: 5px 10px;
+            padding: 6px 12px;
             background: rgba(16, 185, 129, 0.12);
             border: 1px solid rgba(16, 185, 129, 0.25);
             border-radius: var(--radius-pill);
-            font-size: 0.7rem;
+            font-size: 0.72rem;
             font-weight: 700;
             color: var(--status-active);
-            letter-spacing: 0.5px;
         }
 
         .pulse-dot {
@@ -236,8 +243,10 @@
         }
 
         .icon-btn {
-            width: 38px;
-            height: 38px;
+            min-width: var(--touch-target);
+            min-height: var(--touch-target);
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--border-glass);
@@ -250,28 +259,113 @@
             transition: var(--transition);
         }
 
-        .icon-btn:active {
-            transform: scale(0.92);
+        .icon-btn:active { transform: scale(0.92); }
+
+        .hamburger-btn {
+            display: flex; /* Mobile default */
         }
 
-        .notify-badge {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            width: 8px;
-            height: 8px;
-            background: var(--accent);
-            border-radius: 50%;
-            box-shadow: 0 0 8px var(--accent);
-            display: none;
+        /* Desktop Nav Menu Items */
+        .desktop-nav-links {
+            display: none; /* Hidden on mobile */
+            align-items: center;
+            gap: 20px;
+            list-style: none;
+        }
+
+        .desktop-nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .desktop-nav-links a:hover {
+            color: #fff;
+        }
+
+        /* Mobile Slide Out Drawer Menu */
+        .mobile-drawer {
+            position: fixed;
+            top: 0; right: 0;
+            width: 280px;
+            height: 100vh;
+            background: var(--bg-glass-strong);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-left: 1px solid var(--border-glass-bright);
+            z-index: 200;
+            padding: 24px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            transform: translateX(100%);
+            transition: transform 0.35s cubic-bezier(0.1, 0.9, 0.2, 1);
+            box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+        }
+
+        .mobile-drawer.open {
+            transform: translateX(0);
+        }
+
+        .drawer-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-glass);
+        }
+
+        .drawer-menu-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .drawer-menu-list a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-glass);
+            min-height: var(--touch-target);
+        }
+
+        .drawer-menu-list a i {
+            color: var(--primary);
+        }
+
+        .drawer-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 190;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition);
+        }
+
+        .drawer-overlay.open {
+            opacity: 1;
+            pointer-events: all;
         }
 
         /* ==========================================================================
-           3. GROUP COVER BANNER & HERO CARD
+           3. GROUP HERO SECTION (Mobile-First Stacked / Desktop Flex)
            ========================================================================== */
         .hero-section {
             margin-top: 16px;
             margin-bottom: 24px;
+            width: 100%;
         }
 
         .group-card-wrapper {
@@ -280,13 +374,13 @@
             border-radius: var(--radius-xl);
             background: var(--bg-glass-strong);
             border: 1px solid var(--border-glass);
-            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.45);
+            width: 100%;
         }
 
         .group-cover {
             width: 100%;
             aspect-ratio: 16 / 9;
-            max-height: 220px;
+            max-height: 200px;
             background-size: cover;
             background-position: center;
             position: relative;
@@ -296,28 +390,31 @@
         .group-cover-overlay {
             position: absolute;
             inset: 0;
-            background: linear-gradient(to bottom, rgba(7, 10, 18, 0.2), rgba(15, 22, 38, 0.95));
+            background: linear-gradient(to bottom, rgba(7, 10, 18, 0.1), rgba(15, 22, 38, 0.95));
         }
 
+        /* Mobile Profile Pic Overlap Centered */
         .group-profile-overlap {
             position: relative;
-            margin-top: -50px;
-            padding: 0 20px 20px 20px;
+            margin-top: -45px;
+            padding: 0 16px 20px 16px;
             text-align: center;
             display: flex;
             flex-direction: column;
             align-items: center;
+            width: 100%;
         }
 
         .group-avatar-ring {
             position: relative;
-            width: 94px;
-            height: 94px;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
             padding: 3px;
             background: linear-gradient(135deg, var(--primary), var(--accent));
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
             margin-bottom: 12px;
+            flex-shrink: 0;
         }
 
         .group-avatar-img {
@@ -329,39 +426,23 @@
             border: 2px solid var(--bg-dark);
         }
 
-        .verified-badge {
-            position: absolute;
-            bottom: 2px;
-            right: 2px;
-            background: var(--primary);
-            color: #fff;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.7rem;
-            border: 2px solid var(--bg-dark);
-            box-shadow: 0 0 10px var(--primary-glow);
-        }
-
         .group-title {
             font-family: 'Outfit', sans-serif;
-            font-size: 1.35rem;
+            font-size: clamp(1.2rem, 5vw, 2rem);
             font-weight: 800;
             color: #fff;
             margin-bottom: 6px;
             line-height: 1.25;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            text-align: center;
         }
 
         .group-desc {
-            font-size: 0.85rem;
+            font-size: clamp(0.8rem, 2.8vw, 0.95rem);
             color: var(--text-muted);
             line-height: 1.45;
-            max-width: 600px;
-            margin-bottom: 16px;
+            max-width: 650px;
+            margin: 0 auto 16px auto;
+            text-align: center;
         }
 
         .group-meta-pills {
@@ -369,8 +450,9 @@
             flex-wrap: wrap;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            font-size: 0.78rem;
+            gap: 8px;
+            font-size: clamp(0.72rem, 2.5vw, 0.82rem);
+            width: 100%;
         }
 
         .meta-pill {
@@ -382,27 +464,22 @@
             border: 1px solid var(--border-glass);
             border-radius: var(--radius-pill);
             color: var(--text-main);
+            min-height: 34px;
         }
 
-        .meta-pill i {
-            color: var(--accent);
-            font-size: 0.75rem;
-        }
+        .meta-pill i { color: var(--accent); }
 
         /* ==========================================================================
-           4. STATISTICS SECTION (Mobile 2 per row + 5th full width)
+           4. LIVE METRICS / STATISTICS (2 per row on mobile, 5 on desktop)
            ========================================================================== */
         .section-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
             margin-bottom: 14px;
-            padding: 0 4px;
+            padding: 0 2px;
         }
 
         .section-header h2 {
             font-family: 'Outfit', sans-serif;
-            font-size: 1.1rem;
+            font-size: clamp(1.05rem, 4vw, 1.4rem);
             font-weight: 700;
             display: flex;
             align-items: center;
@@ -412,38 +489,34 @@
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
+            grid-template-columns: repeat(2, 1fr); /* 2 per row on mobile */
+            gap: 10px;
             margin-bottom: 24px;
+            width: 100%;
         }
 
         .stat-card {
-            padding: 16px 14px;
+            padding: 14px 12px;
             display: flex;
             align-items: center;
-            gap: 12px;
-            transition: var(--transition);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .stat-card:active {
-            transform: scale(0.98);
+            gap: 10px;
+            width: 100%;
+            min-height: 72px;
         }
 
         /* 5th stat card spans full width on mobile */
         .stat-card:nth-child(5) {
-            grid-column: span 2;
+            grid-column: 1 / -1;
         }
 
         .stat-icon-wrap {
-            width: 44px;
-            height: 44px;
+            width: 42px;
+            height: 42px;
             border-radius: var(--radius-md);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.15rem;
+            font-size: 1.1rem;
             flex-shrink: 0;
         }
 
@@ -455,36 +528,38 @@
 
         .stat-val {
             font-family: 'Outfit', sans-serif;
-            font-size: 1.35rem;
+            font-size: clamp(1.15rem, 4vw, 1.4rem);
             font-weight: 700;
             line-height: 1;
-            margin-bottom: 3px;
+            margin-bottom: 2px;
         }
 
         .stat-lbl {
-            font-size: 0.72rem;
+            font-size: clamp(0.68rem, 2.2vw, 0.78rem);
             color: var(--text-muted);
             font-weight: 500;
         }
 
         /* ==========================================================================
-           5. STICKY SEARCH BAR & HORIZONTAL SCROLL FILTERS
+           5. STICKY SEARCH & HORIZONTAL SCROLL FILTERS
            ========================================================================== */
         .controls-sticky {
             position: sticky;
-            top: calc(58px + var(--safe-top));
+            top: 60px;
             z-index: 80;
-            background: rgba(7, 10, 18, 0.88);
+            background: rgba(7, 10, 18, 0.92);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             padding: 10px 0;
             margin-bottom: 16px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            width: 100%;
         }
 
         .search-field {
             position: relative;
             margin-bottom: 10px;
+            width: 100%;
         }
 
         .search-field i {
@@ -499,45 +574,51 @@
 
         .search-input {
             width: 100%;
-            padding: 12px 16px 12px 44px;
-            background: rgba(18, 26, 43, 0.8);
+            min-height: var(--touch-target);
+            padding: 10px 16px 10px 44px;
+            background: rgba(18, 26, 43, 0.85);
             border: 1px solid var(--border-glass);
             border-radius: var(--radius-xl);
             color: var(--text-main);
             font-size: 0.88rem;
             outline: none;
             transition: var(--transition);
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
         }
 
         .search-input:focus {
             border-color: var(--primary);
             box-shadow: 0 0 15px var(--primary-glow);
-            background: rgba(24, 34, 56, 0.95);
         }
 
-        /* Filter Chips Horizontal Scroll */
+        /* Horizontal Filter Scroll Bar */
+        .filter-toolbar-flex {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            width: 100%;
+        }
+
         .filters-scroll {
             display: flex;
             align-items: center;
             gap: 8px;
             overflow-x: auto;
-            padding-bottom: 4px;
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* IE/Edge */
+            padding-bottom: 2px;
+            width: 100%;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
         }
-
-        .filters-scroll::-webkit-scrollbar {
-            display: none; /* Chrome/Safari */
-        }
+        .filters-scroll::-webkit-scrollbar { display: none; }
 
         .filter-chip {
+            min-height: var(--touch-target);
             padding: 8px 16px;
             border-radius: var(--radius-pill);
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid var(--border-glass);
             color: var(--text-muted);
-            font-size: 0.78rem;
+            font-size: 0.8rem;
             font-weight: 600;
             white-space: nowrap;
             cursor: pointer;
@@ -555,12 +636,9 @@
             box-shadow: 0 4px 12px var(--primary-glow);
         }
 
-        .filter-chip:active {
-            transform: scale(0.94);
-        }
-
         .sort-dropdown {
-            padding: 7px 12px;
+            min-height: var(--touch-target);
+            padding: 6px 10px;
             border-radius: var(--radius-pill);
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid var(--border-glass);
@@ -571,22 +649,19 @@
             flex-shrink: 0;
         }
 
-        .sort-dropdown option {
-            background: var(--bg-dark);
-            color: var(--text-main);
-        }
-
         /* ==========================================================================
-           6. MEMBER CARDS (Mobile 1 col, Tablet 2, Desktop 4)
+           6. MEMBER LIST (1 column on mobile, 2 tablet, 4 desktop)
            ========================================================================== */
         .members-section {
             margin-bottom: 30px;
+            width: 100%;
         }
 
         .members-grid {
             display: grid;
-            grid-template-columns: 1fr;
-            gap: 14px;
+            grid-template-columns: 1fr; /* 1 column mobile default */
+            gap: 12px;
+            width: 100%;
         }
 
         .member-card {
@@ -596,23 +671,21 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            width: 100%;
             animation: cardAppear 0.35s ease forwards;
         }
 
         @keyframes cardAppear {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
-        }
-
-        .member-card:active {
-            transform: scale(0.98);
         }
 
         .member-card-top {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 12px;
             margin-bottom: 12px;
+            width: 100%;
         }
 
         .member-avatar-wrap {
@@ -621,8 +694,8 @@
         }
 
         .member-avatar {
-            width: 58px;
-            height: 58px;
+            width: 54px;
+            height: 54px;
             border-radius: 50%;
             object-fit: cover;
             border: 2px solid var(--border-glass-bright);
@@ -633,8 +706,8 @@
             position: absolute;
             bottom: 2px;
             right: 2px;
-            width: 13px;
-            height: 13px;
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
             border: 2px solid var(--bg-dark);
         }
@@ -645,15 +718,15 @@
 
         .member-main-info {
             flex: 1;
-            min-width: 0;
+            min-width: 0; /* Prevents text overflow */
         }
 
         .member-name {
             font-family: 'Outfit', sans-serif;
-            font-size: 1rem;
+            font-size: clamp(0.95rem, 3.5vw, 1.1rem);
             font-weight: 700;
             color: #fff;
-            margin-bottom: 3px;
+            margin-bottom: 2px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -666,6 +739,10 @@
             display: inline-flex;
             align-items: center;
             gap: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
         }
 
         .member-number-tag {
@@ -676,18 +753,18 @@
             font-weight: 800;
             color: var(--text-dim);
             background: rgba(255, 255, 255, 0.04);
-            padding: 3px 8px;
+            padding: 2px 8px;
             border-radius: var(--radius-sm);
             border: 1px solid var(--border-glass);
         }
 
         .member-card-details {
             border-top: 1px solid rgba(255, 255, 255, 0.05);
-            padding-top: 12px;
+            padding-top: 10px;
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            font-size: 0.72rem;
+            gap: 6px;
+            font-size: clamp(0.68rem, 2.2vw, 0.75rem);
             text-align: center;
         }
 
@@ -695,7 +772,6 @@
             display: block;
             color: var(--text-dim);
             margin-bottom: 2px;
-            font-weight: 500;
         }
 
         .detail-item strong {
@@ -707,10 +783,9 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 4px;
-            padding: 3px 8px;
+            padding: 2px 8px;
             border-radius: 12px;
-            font-size: 0.7rem;
+            font-size: 0.68rem;
             font-weight: 700;
             text-transform: capitalize;
         }
@@ -721,29 +796,29 @@
 
         .profile-action-btn {
             margin-top: 12px;
-            width: 100%;
-            padding: 8px;
+            width: 100%; /* Full width on mobile */
+            min-height: var(--touch-target);
             border-radius: var(--radius-md);
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid var(--border-glass);
             color: var(--text-main);
-            font-size: 0.78rem;
+            font-size: 0.82rem;
             font-weight: 600;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
+            gap: 8px;
             text-decoration: none;
             transition: var(--transition);
         }
 
-        .profile-action-btn:hover, .profile-action-btn:active {
-            background: rgba(99, 102, 241, 0.2);
+        .profile-action-btn:active {
+            background: rgba(99, 102, 241, 0.25);
             border-color: var(--primary);
             color: #fff;
         }
 
-        /* SKELETON LOADERS */
+        /* Skeleton Loaders */
         .skeleton {
             background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
             background-size: 200% 100%;
@@ -758,34 +833,26 @@
         .empty-state {
             grid-column: 1 / -1;
             text-align: center;
-            padding: 50px 20px;
+            padding: 40px 16px;
             color: var(--text-dim);
-        }
-        .empty-state i {
-            font-size: 2.8rem;
-            margin-bottom: 12px;
-            opacity: 0.4;
         }
 
         /* ==========================================================================
-           7. FLOATING BOTTOM NAVIGATION (iOS / Android Native App Bar)
+           7. FLOATING BOTTOM NAVIGATION BAR (Mobile Only)
            ========================================================================== */
-        .bottom-nav-wrap {
+        .floating-bottom-nav {
             position: fixed;
-            bottom: calc(12px + var(--safe-bottom));
+            bottom: 12px;
             left: 50%;
             transform: translateX(-50%);
             width: calc(100% - 24px);
             max-width: 460px;
             z-index: 150;
-        }
-
-        .bottom-nav {
             display: flex;
             align-items: center;
             justify-content: space-around;
-            padding: 8px 12px;
-            background: rgba(12, 17, 30, 0.88);
+            padding: 6px 8px;
+            background: rgba(12, 17, 30, 0.92);
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
             border: 1px solid var(--border-glass-bright);
@@ -797,27 +864,30 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 4px;
+            justify-content: center;
+            gap: 3px;
             color: var(--text-dim);
             text-decoration: none;
-            font-size: 0.68rem;
+            font-size: 0.65rem;
             font-weight: 600;
-            padding: 6px 12px;
+            padding: 6px 10px;
             border-radius: 20px;
             transition: var(--transition);
             cursor: pointer;
             border: none;
             background: transparent;
+            min-height: 44px;
+            flex: 1;
         }
 
         .nav-item i {
-            font-size: 1.15rem;
+            font-size: 1.1rem;
             transition: var(--transition);
         }
 
         .nav-item.active {
             color: #fff;
-            background: rgba(99, 102, 241, 0.2);
+            background: rgba(99, 102, 241, 0.22);
         }
 
         .nav-item.active i {
@@ -826,7 +896,7 @@
         }
 
         /* ==========================================================================
-           8. NOTIFICATIONS DRAWER MODAL
+           8. NOTIFICATIONS DRAWER MODAL SHEET
            ========================================================================== */
         .modal-overlay {
             position: fixed;
@@ -834,7 +904,7 @@
             background: rgba(0, 0, 0, 0.75);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            z-index: 200;
+            z-index: 250;
             display: flex;
             align-items: flex-end;
             justify-content: center;
@@ -854,198 +924,189 @@
             background: var(--bg-glass-strong);
             border: 1px solid var(--border-glass-bright);
             border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-            padding: 24px 20px calc(30px + var(--safe-bottom)) 20px;
+            padding: 20px 16px 30px 16px;
             max-height: 80vh;
             overflow-y: auto;
             transform: translateY(100%);
             transition: transform 0.35s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
 
-        .modal-overlay.active .modal-sheet {
-            transform: translateY(0);
-        }
+        .modal-overlay.active .modal-sheet { transform: translateY(0); }
 
         .sheet-handle {
-            width: 40px;
-            height: 4px;
-            border-radius: 2px;
-            background: rgba(255,255,255,0.2);
-            margin: 0 auto 16px auto;
+            width: 36px; height: 4px; border-radius: 2px;
+            background: rgba(255,255,255,0.2); margin: 0 auto 14px auto;
         }
 
         .sheet-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 18px;
-        }
-
-        .sheet-header h3 {
-            font-family: 'Outfit', sans-serif;
-            font-size: 1.2rem;
-            color: #fff;
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 16px;
         }
 
         .notify-item {
-            padding: 14px;
-            border-radius: var(--radius-md);
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border-glass);
+            padding: 12px; border-radius: var(--radius-md);
+            background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-glass);
             margin-bottom: 10px;
         }
 
-        .notify-item h4 {
-            font-size: 0.9rem;
-            font-weight: 700;
-            color: #fff;
-            margin-bottom: 4px;
-        }
-
-        .notify-item p {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            line-height: 1.4;
-            margin-bottom: 8px;
-        }
-
-        .notify-time {
-            font-size: 0.7rem;
-            color: var(--text-dim);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
+        .notify-item h4 { font-size: 0.88rem; font-weight: 700; color: #fff; margin-bottom: 4px; }
+        .notify-item p { font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 6px; }
 
         /* ==========================================================================
-           9. RESPONSIVE BREAKPOINTS (Tablet & Desktop Scale)
+           9. RESPONSIVE BREAKPOINTS (CSS MEDIA QUERIES)
            ========================================================================== */
-        @media (min-width: 640px) {
-            .stats-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-            .stat-card:nth-child(5) {
-                grid-column: span 1;
-            }
-            .members-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
+        
+        /* Desktop & Large Screen Fixes (> 1024px) */
+        @media (min-width: 1025px) {
+            .hamburger-btn { display: none !important; }
+            .desktop-nav-links { display: flex !important; }
+            .floating-bottom-nav { display: none !important; } /* Hide mobile bottom nav on desktop */
+            body { padding-bottom: 40px; }
+
+            .stats-grid { grid-template-columns: repeat(5, 1fr); }
+            .stat-card:nth-child(5) { grid-column: span 1; }
+            .members-grid { grid-template-columns: repeat(4, 1fr); }
+
             .group-profile-overlap {
                 flex-direction: row;
                 text-align: left;
                 align-items: flex-end;
                 gap: 20px;
+                padding-left: 28px;
             }
-            .group-avatar-ring {
-                margin-bottom: 0;
-            }
+            .group-title, .group-desc { text-align: left; margin-left: 0; }
+            .group-meta-pills { justify-content: flex-start; }
+            .group-avatar-ring { width: 90px; height: 90px; margin-bottom: 0; }
         }
 
-        @media (min-width: 1024px) {
-            .stats-grid {
-                grid-template-columns: repeat(5, 1fr);
-            }
-            .members-grid {
-                grid-template-columns: repeat(4, 1fr);
-            }
-            .modal-overlay {
-                align-items: center;
-            }
-            .modal-sheet {
-                border-radius: var(--radius-xl);
-                padding-bottom: 24px;
-            }
+        /* Tablet Screens (769px to 1024px) */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .stats-grid { grid-template-columns: repeat(3, 1fr); }
+            .stat-card:nth-child(5) { grid-column: span 1; }
+            .members-grid { grid-template-columns: repeat(2, 1fr); }
+            .hamburger-btn { display: flex; }
+        }
+
+        /* Small Phones (<= 390px, 360px, 320px) */
+        @media (max-width: 390px) {
+            .container { padding: 0 12px; }
+            .stat-card { padding: 10px 8px; gap: 8px; }
+            .stat-icon-wrap { width: 36px; height: 36px; font-size: 0.95rem; }
+            .member-avatar { width: 48px; height: 48px; }
+            .member-card-details { font-size: 0.65rem; }
+            .filter-chip { padding: 6px 12px; font-size: 0.75rem; }
+            .live-pill span { display: none; } /* Show pulse dot only on super narrow phones */
+        }
+
+        @media (max-width: 320px) {
+            .stats-grid { grid-template-columns: 1fr; } /* Stack stats on 320px */
+            .stat-card:nth-child(5) { grid-column: span 1; }
+            .brand-info p { display: none; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Ambient Glowing Background Shapes -->
+    <!-- Ambient Glow Orbs Background -->
     <div class="ambient-bg">
         <div class="orb orb-1"></div>
         <div class="orb orb-2"></div>
-        <div class="orb orb-3"></div>
     </div>
 
-    <!-- 1. TOP APP BAR HEADER -->
+    <!-- 1. TOP HEADER APP BAR -->
     <header class="top-app-bar">
         <div class="container header-flex">
-            <div class="brand-box">
+            <a href="#home" class="brand-box">
                 <div class="brand-logo">
                     <i class="fa-solid fa-bolt"></i>
                 </div>
                 <div class="brand-info">
                     <h1>SMSG ELITE</h1>
-                    <p>Realtime Messenger Hub</p>
+                    <p>Messenger Community</p>
                 </div>
-            </div>
+            </a>
 
+            <!-- Desktop Links -->
+            <ul class="desktop-nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#statistics">Statistics</a></li>
+                <li><a href="#members">Members</a></li>
+                <li><a href="admin.html" target="_blank" style="color:var(--accent);">Admin Portal</a></li>
+            </ul>
+
+            <!-- Top Actions -->
             <div class="header-actions">
                 <div class="live-pill">
                     <div class="pulse-dot"></div>
-                    <span>LIVE SYNC</span>
+                    <span>LIVE</span>
                 </div>
+
                 <button class="icon-btn ripple" id="openNotifyBtn" title="Notifications">
                     <i class="fa-regular fa-bell"></i>
-                    <span class="notify-badge" id="notifyBadge"></span>
+                </button>
+
+                <!-- Hamburger Button for Mobile Drawer -->
+                <button class="icon-btn hamburger-btn ripple" id="openDrawerBtn" title="Menu">
+                    <i class="fa-solid fa-bars"></i>
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- MAIN SCROLL CONTENT AREA -->
+    <!-- MOBILE SLIDE MENU DRAWER -->
+    <div class="drawer-overlay" id="drawerOverlay"></div>
+    <aside class="mobile-drawer" id="mobileDrawer">
+        <div class="drawer-header">
+            <h3 style="font-family:'Outfit'; font-size:1.1rem; color:#fff;">Menu Navigation</h3>
+            <button class="icon-btn" id="closeDrawerBtn" style="width:34px; height:34px;"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <ul class="drawer-menu-list">
+            <li><a href="#home" class="drawer-link"><i class="fa-solid fa-house"></i> Home Overview</a></li>
+            <li><a href="#statistics" class="drawer-link"><i class="fa-solid fa-chart-pie"></i> Group Metrics</a></li>
+            <li><a href="#members" class="drawer-link"><i class="fa-solid fa-users"></i> Member Directory</a></li>
+            <li><a href="#" id="drawerNotifyLink" class="drawer-link"><i class="fa-solid fa-bell"></i> Announcements</a></li>
+            <li><a href="admin.html" target="_blank" class="drawer-link" style="color:var(--accent);"><i class="fa-solid fa-user-gear"></i> Admin Login</a></li>
+        </ul>
+    </aside>
+
+    <!-- MAIN SCROLL CONTAINER -->
     <main class="container" id="home">
 
-        <!-- 2. GROUP HERO COVER & INFORMATION CARD -->
+        <!-- 2. GROUP PROFILE HERO BANNER -->
         <section class="hero-section">
             <div class="group-card-wrapper">
-                <!-- 16:9 Aspect Cover Image -->
                 <div class="group-cover" id="groupCover">
                     <div class="group-cover-overlay"></div>
                 </div>
 
-                <!-- Profile Photo Overlapping Cover Image -->
                 <div class="group-profile-overlap">
                     <div class="group-avatar-ring">
                         <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=300&q=80" alt="Group Profile" class="group-avatar-img" id="groupAvatar">
-                        <div class="verified-badge" title="Verified Community">
-                            <i class="fa-solid fa-check"></i>
-                        </div>
                     </div>
 
                     <div>
-                        <h1 class="group-title" id="groupTitle">SMSG ELITE COMMUNITY</h1>
-                        <p class="group-desc" id="groupDescription">Official Realtime Messenger Group for High-Performance Members.</p>
+                        <h1 class="group-title" id="groupTitle">SMSG ELITE</h1>
+                        <p class="group-desc" id="groupDescription">Official Messenger Hub for real-time collaboration.</p>
 
                         <div class="group-meta-pills">
-                            <div class="meta-pill">
-                                <i class="fa-solid fa-users"></i>
-                                <span>Total: <strong id="heroTotal">0</strong></span>
-                            </div>
-                            <div class="meta-pill">
-                                <i class="fa-solid fa-circle" style="color: var(--status-active);"></i>
-                                <span>Active: <strong id="heroActive">0</strong></span>
-                            </div>
-                            <div class="meta-pill">
-                                <i class="fa-regular fa-clock"></i>
-                                <span>Updated: <strong id="heroUpdated">Just Now</strong></span>
-                            </div>
+                            <div class="meta-pill"><i class="fa-solid fa-users"></i> Total: <strong id="heroTotal">0</strong></div>
+                            <div class="meta-pill"><i class="fa-solid fa-circle" style="color:var(--status-active);"></i> Active: <strong id="heroActive">0</strong></div>
+                            <div class="meta-pill"><i class="fa-regular fa-clock"></i> Updated: <strong id="heroUpdated">Just Now</strong></div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- 3. STATISTICS SECTION (Mobile 2x2 + 1 Full Width) -->
-        <section id="statistics" style="scroll-margin-top: 80px;">
+        <!-- 3. LIVE METRICS OVERVIEW -->
+        <section id="statistics" style="scroll-margin-top: 75px;">
             <div class="section-header">
-                <h2><i class="fa-solid fa-chart-pie" style="color: var(--primary);"></i> Group Metrics</h2>
+                <h2><i class="fa-solid fa-chart-line" style="color:var(--primary);"></i> Live Metrics</h2>
             </div>
 
             <div class="stats-grid">
                 <div class="glass-panel stat-card">
-                    <div class="stat-icon-wrap icon-total">
-                        <i class="fa-solid fa-user-group"></i>
-                    </div>
+                    <div class="stat-icon-wrap icon-total"><i class="fa-solid fa-user-group"></i></div>
                     <div>
                         <div class="stat-val" id="statTotal">0</div>
                         <div class="stat-lbl">Total Members</div>
@@ -1053,9 +1114,7 @@
                 </div>
 
                 <div class="glass-panel stat-card">
-                    <div class="stat-icon-wrap icon-active">
-                        <i class="fa-solid fa-circle-check"></i>
-                    </div>
+                    <div class="stat-icon-wrap icon-active"><i class="fa-solid fa-circle-check"></i></div>
                     <div>
                         <div class="stat-val" id="statActive">0</div>
                         <div class="stat-lbl">Active Now</div>
@@ -1063,47 +1122,41 @@
                 </div>
 
                 <div class="glass-panel stat-card">
-                    <div class="stat-icon-wrap icon-busy">
-                        <i class="fa-solid fa-clock-rotate-left"></i>
-                    </div>
+                    <div class="stat-icon-wrap icon-busy"><i class="fa-solid fa-clock-rotate-left"></i></div>
                     <div>
                         <div class="stat-val" id="statBusy">0</div>
-                        <div class="stat-lbl">Busy / Inactive</div>
+                        <div class="stat-lbl">Busy Members</div>
                     </div>
                 </div>
 
                 <div class="glass-panel stat-card">
-                    <div class="stat-icon-wrap icon-offline">
-                        <i class="fa-solid fa-circle-minus"></i>
-                    </div>
+                    <div class="stat-icon-wrap icon-offline"><i class="fa-solid fa-circle-minus"></i></div>
                     <div>
                         <div class="stat-val" id="statOffline">0</div>
                         <div class="stat-lbl">Offline</div>
                     </div>
                 </div>
 
-                <!-- 5th Card Spans Full Width on Mobile -->
+                <!-- 5th Card Full Width on Mobile -->
                 <div class="glass-panel stat-card">
-                    <div class="stat-icon-wrap icon-newest">
-                        <i class="fa-solid fa-user-plus"></i>
-                    </div>
+                    <div class="stat-icon-wrap icon-newest"><i class="fa-solid fa-user-plus"></i></div>
                     <div style="min-width: 0;">
-                        <div class="stat-val" id="statNewest" style="font-size: 1.1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">-</div>
+                        <div class="stat-val" id="statNewest" style="font-size:1.05rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">-</div>
                         <div class="stat-lbl">Newest Joined Member</div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- 4. SEARCH & FILTER CONTROLS (Sticky Bar) -->
-        <section id="members" style="scroll-margin-top: 80px;">
+        <!-- 4. STICKY SEARCH & HORIZONTAL SCROLL FILTERS -->
+        <section id="members" style="scroll-margin-top: 75px;">
             <div class="controls-sticky">
                 <div class="search-field">
                     <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" class="search-input" id="searchInput" placeholder="Search by name, FB handle or #...">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search member by name, FB ID or #...">
                 </div>
 
-                <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                <div class="filter-toolbar-flex">
                     <div class="filters-scroll">
                         <button class="filter-chip active" data-filter="all">All</button>
                         <button class="filter-chip" data-filter="active">🟢 Active</button>
@@ -1115,27 +1168,18 @@
                     <select class="sort-dropdown" id="sortSelect">
                         <option value="number"># Number</option>
                         <option value="name">A-Z Name</option>
-                        <option value="recent">Recent Active</option>
+                        <option value="recent">Recent</option>
                     </select>
                 </div>
             </div>
 
-            <!-- 5. MEMBER CARDS GRID -->
+            <!-- 5. MEMBER CARDS LIST -->
             <div class="members-section">
                 <div class="members-grid" id="membersGrid">
-                    <!-- Skeleton Cards Loading State -->
+                    <!-- Loading Skeletons -->
                     <div class="glass-panel member-card">
                         <div class="member-card-top">
-                            <div class="skeleton" style="width: 58px; height: 58px; border-radius: 50%;"></div>
-                            <div style="flex:1;">
-                                <div class="skeleton" style="width: 120px; height: 16px; margin-bottom: 6px;"></div>
-                                <div class="skeleton" style="width: 80px; height: 12px;"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="glass-panel member-card">
-                        <div class="member-card-top">
-                            <div class="skeleton" style="width: 58px; height: 58px; border-radius: 50%;"></div>
+                            <div class="skeleton" style="width: 54px; height: 54px; border-radius: 50%;"></div>
                             <div style="flex:1;">
                                 <div class="skeleton" style="width: 120px; height: 16px; margin-bottom: 6px;"></div>
                                 <div class="skeleton" style="width: 80px; height: 12px;"></div>
@@ -1148,35 +1192,37 @@
 
     </main>
 
-    <!-- 6. FLOATING BOTTOM NAVIGATION BAR (iOS / Android Native Vibe) -->
-    <div class="bottom-nav-wrap">
-        <nav class="bottom-nav">
-            <button class="nav-item active" data-target="#home">
-                <i class="fa-solid fa-house"></i>
-                <span>Home</span>
-            </button>
-            <button class="nav-item" data-target="#statistics">
-                <i class="fa-solid fa-chart-simple"></i>
-                <span>Stats</span>
-            </button>
-            <button class="nav-item" data-target="#members">
-                <i class="fa-solid fa-users"></i>
-                <span>Members</span>
-            </button>
-            <button class="nav-item" id="navNotifyBtn">
-                <i class="fa-solid fa-bell"></i>
-                <span>Updates</span>
-            </button>
-        </nav>
-    </div>
+    <!-- 6. FLOATING MOBILE BOTTOM NAVIGATION (Hidden on Desktop) -->
+    <nav class="floating-bottom-nav">
+        <button class="nav-item active" data-target="#home">
+            <i class="fa-solid fa-house"></i>
+            <span>Home</span>
+        </button>
+        <button class="nav-item" data-target="#members">
+            <i class="fa-solid fa-users"></i>
+            <span>Members</span>
+        </button>
+        <button class="nav-item" data-target="#statistics">
+            <i class="fa-solid fa-chart-simple"></i>
+            <span>Stats</span>
+        </button>
+        <button class="nav-item" id="navNotifyBtn">
+            <i class="fa-solid fa-bell"></i>
+            <span>Updates</span>
+        </button>
+        <button class="nav-item" id="navProfileBtn">
+            <i class="fa-solid fa-user"></i>
+            <span>Profile</span>
+        </button>
+    </nav>
 
-    <!-- 7. NOTIFICATIONS DRAWER MODAL SHEET -->
+    <!-- 7. NOTIFICATIONS MODAL SHEET -->
     <div class="modal-overlay" id="notifyModal">
         <div class="modal-sheet">
             <div class="sheet-handle"></div>
             <div class="sheet-header">
-                <h3><i class="fa-solid fa-bullhorn" style="color: var(--accent);"></i> Group Updates</h3>
-                <button class="icon-btn" id="closeNotifyBtn" style="width: 32px; height: 32px;"><i class="fa-solid fa-xmark"></i></button>
+                <h3 style="font-family:'Outfit'; color:#fff;"><i class="fa-solid fa-bullhorn" style="color:var(--accent);"></i> Announcements</h3>
+                <button class="icon-btn" id="closeNotifyBtn" style="width:32px; height:32px;"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div id="notificationsList">
                 <p style="text-align: center; color: var(--text-dim); padding: 20px;">No updates published yet.</p>
@@ -1184,11 +1230,9 @@
         </div>
     </div>
 
-    <!-- ==========================================================================
-       JAVASCRIPT LOGIC & FIREBASE REALTIME SYNC
-       ========================================================================== -->
+    <!-- JAVASCRIPT & FIREBASE REALTIME DB LOGIC -->
     <script>
-        // 1. Firebase Configuration
+        // Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyDgWu8a6EXc51RgiqfW-9F85BSlV6QWqF0",
             authDomain: "smsg-cb882.firebaseapp.com",
@@ -1199,37 +1243,31 @@
             appId: "1:98493494470:web:148dc43ea62632958dd3c7"
         };
 
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // Application State
         let rawMembers = [];
         let notificationsData = [];
         let currentFilter = 'all';
         let currentSort = 'number';
         let searchQuery = '';
 
-        // DOM Elements
         const membersGrid = document.getElementById('membersGrid');
         const searchInput = document.getElementById('searchInput');
         const filterChips = document.querySelectorAll('.filter-chip');
         const sortSelect = document.getElementById('sortSelect');
-        const notifyModal = document.getElementById('notifyModal');
 
-        // Fallback Demo Data for graceful display if RTDB node is empty
+        // Sample Fallback Data
         const sampleMembers = [
             { id: "1", memberNumber: 1, name: "Ahad Ahmed", fbName: "Ahad Ahmed", fbLink: "https://facebook.com", photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80", status: "active", lastActive: "just now", joinDate: "1999-06-20" },
             { id: "2", memberNumber: 2, name: "Lamiya", fbName: "নিলয়ের আপু", fbLink: "https://facebook.com", photo: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80", status: "active", lastActive: "just now", joinDate: "2026-07-27" }
         ];
 
-        // 2. REALTIME LISTENERS
-        
-        // Group Info Listener
+        // Listeners
         db.ref('groupInfo').on('value', (snapshot) => {
             const data = snapshot.val();
             if (data) {
-                document.getElementById('groupTitle').textContent = data.name || "SMSG ELITE COMMUNITY";
+                document.getElementById('groupTitle').textContent = data.name || "SMSG ELITE";
                 document.getElementById('groupDescription').textContent = data.description || "Official Realtime Messenger Group";
                 if(data.photo) document.getElementById('groupAvatar').src = data.photo;
                 if(data.photo) document.getElementById('groupCover').style.backgroundImage = `url('${data.photo}')`;
@@ -1239,39 +1277,26 @@
             }
         });
 
-        // Members Listener
         db.ref('members').on('value', (snapshot) => {
             const data = snapshot.val();
             if (data) {
-                if (Array.isArray(data)) {
-                    rawMembers = data.filter(Boolean);
-                } else if (typeof data === 'object') {
-                    rawMembers = Object.keys(data).map(key => ({ id: key, ...data[key] }));
-                }
+                if (Array.isArray(data)) rawMembers = data.filter(Boolean);
+                else if (typeof data === 'object') rawMembers = Object.keys(data).map(key => ({ id: key, ...data[key] }));
             } else {
                 rawMembers = sampleMembers;
             }
             updateUI();
         }, (err) => {
-            console.warn("RTDB Read error, fallback loaded:", err);
             rawMembers = sampleMembers;
             updateUI();
         });
 
-        // Notifications Listener
         db.ref('notifications').on('value', (snapshot) => {
             const data = snapshot.val();
-            if (data) {
-                notificationsData = Object.values(data);
-                document.getElementById('notifyBadge').style.display = notificationsData.length > 0 ? 'block' : 'none';
-            } else {
-                notificationsData = [];
-                document.getElementById('notifyBadge').style.display = 'none';
-            }
+            notificationsData = data ? Object.values(data) : [];
             renderNotifications();
         });
 
-        // 3. UI RENDERING & STATS COMPUTATION
         function updateUI() {
             calculateStats();
             renderMembers();
@@ -1283,40 +1308,23 @@
             const busy = rawMembers.filter(m => m.status === 'busy').length;
             const offline = rawMembers.filter(m => m.status === 'offline').length;
 
-            // Animate Counter Values
-            animateCounter('statTotal', total);
-            animateCounter('statActive', active);
-            animateCounter('statBusy', busy);
-            animateCounter('statOffline', offline);
+            document.getElementById('statTotal').textContent = total;
+            document.getElementById('statActive').textContent = active;
+            document.getElementById('statBusy').textContent = busy;
+            document.getElementById('statOffline').textContent = offline;
 
             document.getElementById('heroTotal').textContent = total;
             document.getElementById('heroActive').textContent = active;
 
-            // Newest Member
             if (rawMembers.length > 0) {
                 const sorted = [...rawMembers].sort((a,b) => (b.memberNumber || 0) - (a.memberNumber || 0));
                 document.getElementById('statNewest').textContent = sorted[0].name || sorted[0].fbName || '-';
             }
         }
 
-        function animateCounter(elementId, targetVal) {
-            const el = document.getElementById(elementId);
-            const startVal = parseInt(el.textContent) || 0;
-            if (startVal === targetVal) return;
-
-            let current = startVal;
-            const step = targetVal > startVal ? 1 : -1;
-            const timer = setInterval(() => {
-                current += step;
-                el.textContent = current;
-                if (current === targetVal) clearInterval(timer);
-            }, 30);
-        }
-
         function renderMembers() {
             let list = [...rawMembers];
 
-            // Search
             if (searchQuery.trim() !== '') {
                 const q = searchQuery.toLowerCase();
                 list = list.filter(m => 
@@ -1326,30 +1334,24 @@
                 );
             }
 
-            // Filter
             if (currentFilter === 'newest') {
                 list.sort((a,b) => (b.memberNumber || 0) - (a.memberNumber || 0));
             } else if (currentFilter !== 'all') {
                 list = list.filter(m => m.status === currentFilter);
             }
 
-            // Sort Dropdown
             list.sort((a, b) => {
-                if (currentSort === 'name') {
-                    return (a.name || '').localeCompare(b.name || '');
-                } else if (currentSort === 'recent') {
-                    return (a.status === 'active' ? -1 : 1);
-                } else if (currentFilter !== 'newest') {
-                    return (a.memberNumber || 0) - (b.memberNumber || 0);
-                }
+                if (currentSort === 'name') return (a.name || '').localeCompare(b.name || '');
+                if (currentSort === 'recent') return (a.status === 'active' ? -1 : 1);
+                if (currentFilter !== 'newest') return (a.memberNumber || 0) - (b.memberNumber || 0);
                 return 0;
             });
 
             if (list.length === 0) {
                 membersGrid.innerHTML = `
                     <div class="empty-state">
-                        <i class="fa-solid fa-user-slash"></i>
-                        <p>No members found matching your search.</p>
+                        <i class="fa-solid fa-user-slash" style="font-size:2.5rem; margin-bottom:10px;"></i>
+                        <p>No members found.</p>
                     </div>
                 `;
                 return;
@@ -1399,13 +1401,12 @@
                     </div>
 
                     <a href="${fbUrl}" target="_blank" class="profile-action-btn">
-                        <i class="fa-solid fa-paper-plane"></i> View Profile / Message
+                        <i class="fa-solid fa-paper-plane"></i> View Messenger Profile
                     </a>
                 </div>
             `;
         }
 
-        // 4. NOTIFICATIONS DRAWER
         function renderNotifications() {
             const listEl = document.getElementById('notificationsList');
             if (notificationsData.length === 0) {
@@ -1417,22 +1418,41 @@
                 <div class="notify-item">
                     <h4>${n.title || 'Announcement'}</h4>
                     <p>${n.description || ''}</p>
-                    <div class="notify-time">
-                        <i class="fa-regular fa-clock"></i> ${n.date || ''} ${n.time || ''}
-                    </div>
+                    <div style="font-size:0.7rem; color:var(--text-dim);"><i class="fa-regular fa-clock"></i> ${n.date || ''} ${n.time || ''}</div>
                 </div>
             `).join('');
         }
 
-        // Event Handlers: Modal Open / Close
-        document.getElementById('openNotifyBtn').addEventListener('click', () => notifyModal.classList.add('active'));
-        document.getElementById('navNotifyBtn').addEventListener('click', () => notifyModal.classList.add('active'));
-        document.getElementById('closeNotifyBtn').addEventListener('click', () => notifyModal.classList.remove('active'));
-        notifyModal.addEventListener('click', (e) => {
-            if(e.target === notifyModal) notifyModal.classList.remove('active');
+        // Mobile Drawer Controls
+        const openDrawerBtn = document.getElementById('openDrawerBtn');
+        const closeDrawerBtn = document.getElementById('closeDrawerBtn');
+        const mobileDrawer = document.getElementById('mobileDrawer');
+        const drawerOverlay = document.getElementById('drawerOverlay');
+
+        function toggleDrawer(open) {
+            mobileDrawer.classList.toggle('open', open);
+            drawerOverlay.classList.toggle('open', open);
+        }
+
+        openDrawerBtn.addEventListener('click', () => toggleDrawer(true));
+        closeDrawerBtn.addEventListener('click', () => toggleDrawer(false));
+        drawerOverlay.addEventListener('click', () => toggleDrawer(false));
+        document.querySelectorAll('.drawer-link').forEach(link => {
+            link.addEventListener('click', () => toggleDrawer(false));
         });
 
-        // Event Handlers: Search, Filters, Sort
+        // Notifications Modal Controls
+        const notifyModal = document.getElementById('notifyModal');
+        document.getElementById('openNotifyBtn').addEventListener('click', () => notifyModal.classList.add('active'));
+        document.getElementById('navNotifyBtn').addEventListener('click', () => notifyModal.classList.add('active'));
+        document.getElementById('drawerNotifyLink').addEventListener('click', () => notifyModal.classList.add('active'));
+        document.getElementById('closeNotifyBtn').addEventListener('click', () => notifyModal.classList.remove('active'));
+
+        document.getElementById('navProfileBtn').addEventListener('click', () => {
+            document.querySelector('#home').scrollIntoView({ behavior: 'smooth' });
+        });
+
+        // Search & Filter Triggers
         searchInput.addEventListener('input', (e) => {
             searchQuery = e.target.value;
             renderMembers();
@@ -1452,8 +1472,8 @@
             renderMembers();
         });
 
-        // Bottom Navigation Active Handler & Smooth Scroll
-        const navItems = document.querySelectorAll('.bottom-nav .nav-item');
+        // Bottom Nav Active Switcher
+        const navItems = document.querySelectorAll('.floating-bottom-nav .nav-item');
         navItems.forEach(item => {
             item.addEventListener('click', () => {
                 const target = item.getAttribute('data-target');
@@ -1466,7 +1486,7 @@
             });
         });
 
-        // Touch Ripple Effect Trigger
+        // Touch Ripple Effect
         document.addEventListener('click', function (e) {
             const target = e.target.closest('.ripple');
             if (target) {
