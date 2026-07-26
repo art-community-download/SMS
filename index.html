@@ -2,36 +2,38 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMSG - Premium Group Dashboard</title>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>SMSG ELITE - Realtime Messenger Hub</title>
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
+
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-    <!-- Firebase JS SDK (Compat mode for single-file RTDB) -->
+    <!-- Firebase JS SDK (Compat Mode for RTDB) -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
     <style>
         /* ==========================================================================
-           1. CSS VARIABLES & BASE RESET
+           1. CSS VARIABLES & MOBILE-FIRST RESET
            ========================================================================== */
         :root {
-            --bg-dark: #090d16;
-            --bg-card: rgba(22, 28, 45, 0.55);
-            --bg-card-hover: rgba(30, 39, 62, 0.7);
+            --bg-dark: #070a12;
+            --bg-surface: rgba(15, 22, 38, 0.7);
+            --bg-glass: rgba(22, 31, 52, 0.55);
+            --bg-glass-strong: rgba(26, 37, 63, 0.85);
+            
             --border-glass: rgba(255, 255, 255, 0.08);
             --border-glass-bright: rgba(255, 255, 255, 0.18);
-            
+
             --primary: #6366f1;
-            --primary-glow: rgba(99, 102, 241, 0.4);
+            --primary-glow: rgba(99, 102, 241, 0.35);
             --accent: #06b6d4;
-            --accent-glow: rgba(6, 182, 212, 0.4);
+            --accent-glow: rgba(6, 182, 212, 0.35);
 
             --status-active: #10b981;
             --status-active-glow: rgba(16, 185, 129, 0.4);
@@ -40,210 +42,204 @@
             --status-offline: #ef4444;
             --status-offline-glow: rgba(239, 68, 68, 0.4);
 
-            --text-main: #f3f4f6;
-            --text-muted: #9ca3af;
-            --text-dim: #6b7280;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-dim: #64748b;
 
-            --radius-lg: 20px;
-            --radius-md: 14px;
+            --radius-xl: 24px;
+            --radius-lg: 18px;
+            --radius-md: 12px;
             --radius-sm: 8px;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --radius-pill: 9999px;
+
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+            
+            --transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             -webkit-tap-highlight-color: transparent;
+            word-break: break-word;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            background-color: var(--bg-dark);
         }
 
         body {
             background-color: var(--bg-dark);
             color: var(--text-main);
             min-height: 100vh;
+            padding-bottom: calc(90px + var(--safe-bottom));
             overflow-x: hidden;
             position: relative;
-            padding-bottom: 60px;
         }
 
         /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: var(--bg-dark);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
 
-        /* ==========================================================================
-           2. BACKGROUND AMBIENT SHAPES & GLASS EFFECT
-           ========================================================================== */
+        /* Background Ambient Glow Orbs */
         .ambient-bg {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: -1;
-            overflow: hidden;
-            pointer-events: none;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -1; pointer-events: none; overflow: hidden;
         }
-
         .orb {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(100px);
-            opacity: 0.35;
+            position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.32;
             animation: floatOrb 20s infinite alternate ease-in-out;
         }
-
-        .orb-1 {
-            top: -10%;
-            left: -10%;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, #6366f1 0%, transparent 70%);
-        }
-
-        .orb-2 {
-            bottom: -10%;
-            right: -10%;
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, #06b6d4 0%, transparent 70%);
-        }
-
-        .orb-3 {
-            top: 40%;
-            left: 40%;
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, #8b5cf6 0%, transparent 70%);
-            animation-delay: -7s;
-        }
+        .orb-1 { top: -10%; left: -10%; width: 380px; height: 380px; background: var(--primary); }
+        .orb-2 { bottom: 10%; right: -10%; width: 420px; height: 420px; background: var(--accent); }
+        .orb-3 { top: 40%; left: 30%; width: 300px; height: 300px; background: #8b5cf6; animation-delay: -5s; }
 
         @keyframes floatOrb {
             0% { transform: translate(0, 0) scale(1); }
-            50% { transform: translate(60px, 40px) scale(1.1); }
-            100% { transform: translate(-40px, 80px) scale(0.9); }
+            50% { transform: translate(40px, 30px) scale(1.08); }
+            100% { transform: translate(-30px, 60px) scale(0.92); }
         }
 
+        /* Glassmorphism Utility */
         .glass-panel {
-            background: var(--bg-card);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--border-glass);
             border-radius: var(--radius-lg);
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
 
         .container {
-            max-width: 1280px;
+            width: 100%;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 0 20px;
+            padding: 0 16px;
+        }
+
+        /* Ripple Effect */
+        .ripple {
+            position: relative;
+            overflow: hidden;
+        }
+        .ripple-ink {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(0);
+            animation: rippleAnim 0.5s linear;
+            pointer-events: none;
+        }
+        @keyframes rippleAnim {
+            to { transform: scale(4); opacity: 0; }
         }
 
         /* ==========================================================================
-           3. HEADER SECTION
+           2. TOP APP HEADER (Sticky & Safe Area)
            ========================================================================== */
-        header {
+        .top-app-bar {
             position: sticky;
             top: 0;
             z-index: 100;
-            background: rgba(9, 13, 22, 0.75);
+            background: rgba(7, 10, 18, 0.82);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border-glass);
-            padding: 16px 0;
-            margin-bottom: 30px;
+            padding-top: calc(10px + var(--safe-top));
+            padding-bottom: 12px;
         }
 
-        .header-content {
+        .header-flex {
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 12px;
         }
 
-        .brand {
+        .brand-box {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 10px;
         }
 
-        .logo-box {
-            width: 45px;
-            height: 45px;
+        .brand-logo {
+            width: 38px;
+            height: 38px;
             border-radius: var(--radius-md);
             background: linear-gradient(135deg, var(--primary), var(--accent));
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.4rem;
+            font-size: 1.1rem;
             color: #fff;
-            box-shadow: 0 0 20px var(--primary-glow);
+            box-shadow: 0 0 15px var(--primary-glow);
+            flex-shrink: 0;
         }
 
-        .brand-text h1 {
+        .brand-info h1 {
             font-family: 'Outfit', sans-serif;
-            font-size: 1.35rem;
+            font-size: 1.05rem;
             font-weight: 700;
-            letter-spacing: -0.5px;
-            background: linear-gradient(to right, #fff, var(--text-muted));
+            line-height: 1.1;
+            letter-spacing: -0.3px;
+            background: linear-gradient(to right, #fff, #cbd5e1);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        .brand-text p {
-            font-size: 0.75rem;
+        .brand-info p {
+            font-size: 0.7rem;
             color: var(--text-dim);
+            font-weight: 500;
         }
 
         .header-actions {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 10px;
         }
 
-        .live-status-pill {
+        .live-pill {
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 6px 14px;
-            background: rgba(16, 185, 129, 0.1);
+            gap: 6px;
+            padding: 5px 10px;
+            background: rgba(16, 185, 129, 0.12);
             border: 1px solid rgba(16, 185, 129, 0.25);
-            border-radius: 30px;
-            font-size: 0.8rem;
-            font-weight: 600;
+            border-radius: var(--radius-pill);
+            font-size: 0.7rem;
+            font-weight: 700;
             color: var(--status-active);
+            letter-spacing: 0.5px;
         }
 
         .pulse-dot {
-            width: 8px;
-            height: 8px;
+            width: 7px;
+            height: 7px;
             background-color: var(--status-active);
             border-radius: 50%;
-            box-shadow: 0 0 10px var(--status-active);
-            animation: pulse 1.8s infinite;
+            box-shadow: 0 0 8px var(--status-active);
+            animation: pulseGlow 1.8s infinite;
         }
 
-        @keyframes pulse {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        @keyframes pulseGlow {
+            0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
         }
 
         .icon-btn {
-            width: 42px;
-            height: 42px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.04);
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--border-glass);
             color: var(--text-main);
             display: flex;
@@ -254,169 +250,200 @@
             transition: var(--transition);
         }
 
-        .icon-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: var(--border-glass-bright);
-            transform: translateY(-2px);
+        .icon-btn:active {
+            transform: scale(0.92);
         }
 
-        .notification-badge {
+        .notify-badge {
             position: absolute;
-            top: 10px;
-            right: 10px;
+            top: 8px;
+            right: 8px;
             width: 8px;
             height: 8px;
             background: var(--accent);
             border-radius: 50%;
             box-shadow: 0 0 8px var(--accent);
+            display: none;
         }
 
         /* ==========================================================================
-           4. HERO - GROUP INFORMATION CARD
+           3. GROUP COVER BANNER & HERO CARD
            ========================================================================== */
-        .group-hero {
-            padding: 30px;
-            margin-bottom: 30px;
+        .hero-section {
+            margin-top: 16px;
+            margin-bottom: 24px;
+        }
+
+        .group-card-wrapper {
             position: relative;
             overflow: hidden;
-            transition: var(--transition);
+            border-radius: var(--radius-xl);
+            background: var(--bg-glass-strong);
+            border: 1px solid var(--border-glass);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.45);
         }
 
-        .group-hero::before {
-            content: '';
+        .group-cover {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            max-height: 220px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            background-image: linear-gradient(135deg, #1e1b4b, #0f172a);
+        }
+
+        .group-cover-overlay {
             position: absolute;
-            top: 0;
-            right: 0;
-            width: 300px;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.05));
-            pointer-events: none;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(7, 10, 18, 0.2), rgba(15, 22, 38, 0.95));
         }
 
-        .group-hero-content {
+        .group-profile-overlap {
+            position: relative;
+            margin-top: -50px;
+            padding: 0 20px 20px 20px;
+            text-align: center;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 24px;
+        }
+
+        .group-avatar-ring {
             position: relative;
-            z-index: 1;
-        }
-
-        .group-avatar-container {
-            position: relative;
-            flex-shrink: 0;
-        }
-
-        .group-avatar {
-            width: 100px;
-            height: 100px;
-            border-radius: 24px;
-            object-fit: cover;
-            border: 2px solid var(--border-glass-bright);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
-        }
-
-        .group-badge {
-            position: absolute;
-            bottom: -6px;
-            right: -6px;
+            width: 94px;
+            height: 94px;
+            border-radius: 50%;
+            padding: 3px;
             background: linear-gradient(135deg, var(--primary), var(--accent));
-            width: 28px;
-            height: 28px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
+            margin-bottom: 12px;
+        }
+
+        .group-avatar-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #090d16;
+            border: 2px solid var(--bg-dark);
+        }
+
+        .verified-badge {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            background: var(--primary);
+            color: #fff;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.75rem;
-            color: #fff;
+            font-size: 0.7rem;
             border: 2px solid var(--bg-dark);
+            box-shadow: 0 0 10px var(--primary-glow);
         }
 
-        .group-details {
-            flex: 1;
-        }
-
-        .group-details h2 {
+        .group-title {
             font-family: 'Outfit', sans-serif;
-            font-size: 1.8rem;
-            font-weight: 700;
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #fff;
             margin-bottom: 6px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            line-height: 1.25;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
         }
 
-        .group-details p {
+        .group-desc {
+            font-size: 0.85rem;
             color: var(--text-muted);
-            font-size: 0.95rem;
-            line-height: 1.5;
+            line-height: 1.45;
+            max-width: 600px;
             margin-bottom: 16px;
-            max-width: 750px;
         }
 
-        .group-meta {
+        .group-meta-pills {
             display: flex;
             flex-wrap: wrap;
-            gap: 20px;
-            font-size: 0.85rem;
-            color: var(--text-dim);
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 0.78rem;
         }
 
-        .meta-item {
+        .meta-pill {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-pill);
+            color: var(--text-main);
         }
 
-        .meta-item i {
-            color: var(--primary);
+        .meta-pill i {
+            color: var(--accent);
+            font-size: 0.75rem;
         }
 
         /* ==========================================================================
-           5. STATISTICS GRID
+           4. STATISTICS SECTION (Mobile 2 per row + 5th full width)
            ========================================================================== */
-        .stats-section {
-            margin-bottom: 35px;
-        }
-
-        .section-title {
-            font-family: 'Outfit', sans-serif;
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 18px;
+        .section-header {
             display: flex;
             align-items: center;
-            gap: 10px;
-            color: var(--text-main);
+            justify-content: space-between;
+            margin-bottom: 14px;
+            padding: 0 4px;
+        }
+
+        .section-header h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #fff;
         }
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-            gap: 18px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
         }
 
         .stat-card {
-            padding: 20px;
+            padding: 16px 14px;
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 12px;
             transition: var(--transition);
+            position: relative;
+            overflow: hidden;
         }
 
-        .stat-card:hover {
-            transform: translateY(-4px);
-            border-color: var(--border-glass-bright);
-            background: var(--bg-card-hover);
+        .stat-card:active {
+            transform: scale(0.98);
         }
 
-        .stat-icon {
-            width: 50px;
-            height: 50px;
+        /* 5th stat card spans full width on mobile */
+        .stat-card:nth-child(5) {
+            grid-column: span 2;
+        }
+
+        .stat-icon-wrap {
+            width: 44px;
+            height: 44px;
             border-radius: var(--radius-md);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.3rem;
+            font-size: 1.15rem;
             flex-shrink: 0;
         }
 
@@ -426,145 +453,171 @@
         .icon-offline { background: rgba(239, 68, 68, 0.15); color: var(--status-offline); }
         .icon-newest { background: rgba(6, 182, 212, 0.15); color: var(--accent); }
 
-        .stat-info h3 {
-            font-size: 1.6rem;
-            font-weight: 700;
+        .stat-val {
             font-family: 'Outfit', sans-serif;
-            line-height: 1.1;
+            font-size: 1.35rem;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 3px;
         }
 
-        .stat-info p {
-            font-size: 0.8rem;
+        .stat-lbl {
+            font-size: 0.72rem;
             color: var(--text-muted);
-            margin-top: 4px;
+            font-weight: 500;
         }
 
         /* ==========================================================================
-           6. CONTROLS TOOLBAR (Search, Filter, Sort)
+           5. STICKY SEARCH BAR & HORIZONTAL SCROLL FILTERS
            ========================================================================== */
-        .toolbar {
-            padding: 16px 20px;
-            margin-bottom: 25px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 16px;
-            align-items: center;
-            justify-content: space-between;
+        .controls-sticky {
+            position: sticky;
+            top: calc(58px + var(--safe-top));
+            z-index: 80;
+            background: rgba(7, 10, 18, 0.88);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 10px 0;
+            margin-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .search-box {
+        .search-field {
             position: relative;
-            flex: 1;
-            min-width: 260px;
+            margin-bottom: 10px;
         }
 
-        .search-box i {
+        .search-field i {
             position: absolute;
-            left: 14px;
+            left: 16px;
             top: 50%;
             transform: translateY(-50%);
             color: var(--text-dim);
-            font-size: 0.9rem;
+            font-size: 0.95rem;
+            pointer-events: none;
         }
 
-        .search-box input {
+        .search-input {
             width: 100%;
-            padding: 10px 16px 10px 40px;
-            background: rgba(0, 0, 0, 0.25);
+            padding: 12px 16px 12px 44px;
+            background: rgba(18, 26, 43, 0.8);
             border: 1px solid var(--border-glass);
-            border-radius: var(--radius-md);
+            border-radius: var(--radius-xl);
             color: var(--text-main);
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             outline: none;
             transition: var(--transition);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
         }
 
-        .search-box input:focus {
+        .search-input:focus {
             border-color: var(--primary);
-            box-shadow: 0 0 12px var(--primary-glow);
+            box-shadow: 0 0 15px var(--primary-glow);
+            background: rgba(24, 34, 56, 0.95);
         }
 
-        .filter-group {
+        /* Filter Chips Horizontal Scroll */
+        .filters-scroll {
             display: flex;
             align-items: center;
             gap: 8px;
-            flex-wrap: wrap;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE/Edge */
         }
 
-        .filter-btn {
-            padding: 8px 14px;
-            border-radius: 30px;
+        .filters-scroll::-webkit-scrollbar {
+            display: none; /* Chrome/Safari */
+        }
+
+        .filter-chip {
+            padding: 8px 16px;
+            border-radius: var(--radius-pill);
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid var(--border-glass);
             color: var(--text-muted);
-            font-size: 0.82rem;
-            font-weight: 500;
+            font-size: 0.78rem;
+            font-weight: 600;
+            white-space: nowrap;
             cursor: pointer;
             transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
         }
 
-        .filter-btn:hover, .filter-btn.active {
-            background: rgba(99, 102, 241, 0.15);
-            border-color: var(--primary);
+        .filter-chip.active {
+            background: linear-gradient(135deg, var(--primary), #4f46e5);
+            border-color: transparent;
             color: #fff;
+            box-shadow: 0 4px 12px var(--primary-glow);
         }
 
-        .sort-select {
-            padding: 9px 14px;
-            background: rgba(0, 0, 0, 0.25);
+        .filter-chip:active {
+            transform: scale(0.94);
+        }
+
+        .sort-dropdown {
+            padding: 7px 12px;
+            border-radius: var(--radius-pill);
+            background: rgba(255, 255, 255, 0.04);
             border: 1px solid var(--border-glass);
-            border-radius: var(--radius-md);
             color: var(--text-main);
-            font-size: 0.85rem;
+            font-size: 0.78rem;
             outline: none;
             cursor: pointer;
+            flex-shrink: 0;
         }
 
-        .sort-select option {
+        .sort-dropdown option {
             background: var(--bg-dark);
             color: var(--text-main);
         }
 
         /* ==========================================================================
-           7. MEMBERS LIST & CARDS
+           6. MEMBER CARDS (Mobile 1 col, Tablet 2, Desktop 4)
            ========================================================================== */
+        .members-section {
+            margin-bottom: 30px;
+        }
+
         .members-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
+            grid-template-columns: 1fr;
+            gap: 14px;
         }
 
         .member-card {
-            padding: 20px;
+            padding: 16px;
             position: relative;
             transition: var(--transition);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            animation: fadeIn 0.4s ease forwards;
+            animation: cardAppear 0.35s ease forwards;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(12px); }
+        @keyframes cardAppear {
+            from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .member-card:hover {
-            transform: translateY(-6px);
-            border-color: var(--border-glass-bright);
-            background: var(--bg-card-hover);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+        .member-card:active {
+            transform: scale(0.98);
         }
 
-        .member-header {
+        .member-card-top {
             display: flex;
             align-items: center;
             gap: 14px;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
 
-        .avatar-wrap {
+        .member-avatar-wrap {
             position: relative;
+            flex-shrink: 0;
         }
 
         .member-avatar {
@@ -572,147 +625,334 @@
             height: 58px;
             border-radius: 50%;
             object-fit: cover;
-            border: 2px solid var(--border-glass);
+            border: 2px solid var(--border-glass-bright);
+            background: rgba(0,0,0,0.3);
         }
 
-        .status-badge-dot {
+        .status-dot-indicator {
             position: absolute;
             bottom: 2px;
             right: 2px;
-            width: 14px;
-            height: 14px;
+            width: 13px;
+            height: 13px;
             border-radius: 50%;
             border: 2px solid var(--bg-dark);
         }
 
-        .status-dot-active { background: var(--status-active); box-shadow: 0 0 8px var(--status-active); }
-        .status-dot-busy { background: var(--status-busy); box-shadow: 0 0 8px var(--status-busy); }
-        .status-dot-offline { background: var(--status-offline); box-shadow: 0 0 8px var(--status-offline); }
+        .dot-active { background: var(--status-active); box-shadow: 0 0 8px var(--status-active); }
+        .dot-busy { background: var(--status-busy); box-shadow: 0 0 8px var(--status-busy); }
+        .dot-offline { background: var(--status-offline); box-shadow: 0 0 8px var(--status-offline); }
 
-        .member-info h4 {
-            font-size: 1.05rem;
-            font-weight: 600;
-            color: var(--text-main);
-            margin-bottom: 2px;
+        .member-main-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .member-name {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 3px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 160px;
         }
 
-        .fb-handle {
-            font-size: 0.78rem;
-            color: var(--text-dim);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            transition: var(--transition);
-        }
-
-        .fb-handle:hover {
+        .member-fb-link {
+            font-size: 0.75rem;
             color: var(--accent);
-        }
-
-        .member-body {
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            padding-top: 14px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            font-size: 0.8rem;
-        }
-
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            color: var(--text-muted);
-        }
-
-        .info-row span:last-child {
-            color: var(--text-main);
-            font-weight: 500;
-        }
-
-        .status-pill {
+            text-decoration: none;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: capitalize;
+            gap: 4px;
         }
 
-        .pill-active { background: rgba(16, 185, 129, 0.12); color: var(--status-active); }
-        .pill-busy { background: rgba(245, 158, 11, 0.12); color: var(--status-busy); }
-        .pill-offline { background: rgba(239, 68, 68, 0.12); color: var(--status-offline); }
-
-        .member-tag {
+        .member-number-tag {
             position: absolute;
-            top: 16px;
-            right: 16px;
-            font-size: 0.75rem;
-            font-weight: 700;
+            top: 14px;
+            right: 14px;
+            font-size: 0.7rem;
+            font-weight: 800;
             color: var(--text-dim);
             background: rgba(255, 255, 255, 0.04);
-            padding: 2px 8px;
+            padding: 3px 8px;
             border-radius: var(--radius-sm);
             border: 1px solid var(--border-glass);
         }
 
-        /* ==========================================================================
-           8. LOADING SKELETONS & EMPTY STATE
-           ========================================================================== */
+        .member-card-details {
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 12px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            font-size: 0.72rem;
+            text-align: center;
+        }
+
+        .detail-item span {
+            display: block;
+            color: var(--text-dim);
+            margin-bottom: 2px;
+            font-weight: 500;
+        }
+
+        .detail-item strong {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .status-pill-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: capitalize;
+        }
+
+        .pill-act { background: rgba(16, 185, 129, 0.15); color: var(--status-active); }
+        .pill-bsy { background: rgba(245, 158, 11, 0.15); color: var(--status-busy); }
+        .pill-off { background: rgba(239, 68, 68, 0.15); color: var(--status-offline); }
+
+        .profile-action-btn {
+            margin-top: 12px;
+            width: 100%;
+            padding: 8px;
+            border-radius: var(--radius-md);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-glass);
+            color: var(--text-main);
+            font-size: 0.78rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .profile-action-btn:hover, .profile-action-btn:active {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: var(--primary);
+            color: #fff;
+        }
+
+        /* SKELETON LOADERS */
         .skeleton {
             background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
             background-size: 200% 100%;
-            animation: loadingSkeleton 1.5s infinite;
-            border-radius: 6px;
+            animation: skeletonLoading 1.5s infinite;
+            border-radius: var(--radius-sm);
         }
-
-        @keyframes loadingSkeleton {
+        @keyframes skeletonLoading {
             0% { background-position: 200% 0; }
             100% { background-position: -200% 0; }
         }
 
-        .skeleton-avatar { width: 58px; height: 58px; border-radius: 50%; }
-        .skeleton-title { width: 120px; height: 16px; margin-bottom: 8px; }
-        .skeleton-sub { width: 80px; height: 12px; }
-        .skeleton-text { width: 100%; height: 12px; margin-top: 6px; }
-
         .empty-state {
             grid-column: 1 / -1;
             text-align: center;
-            padding: 60px 20px;
+            padding: 50px 20px;
             color: var(--text-dim);
         }
-
         .empty-state i {
-            font-size: 3rem;
+            font-size: 2.8rem;
             margin-bottom: 12px;
-            opacity: 0.5;
+            opacity: 0.4;
         }
 
-        /* Responsive Design Adjustments */
-        @media (max-width: 768px) {
-            .group-hero-content {
-                flex-direction: column;
-                text-align: center;
+        /* ==========================================================================
+           7. FLOATING BOTTOM NAVIGATION (iOS / Android Native App Bar)
+           ========================================================================== */
+        .bottom-nav-wrap {
+            position: fixed;
+            bottom: calc(12px + var(--safe-bottom));
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 24px);
+            max-width: 460px;
+            z-index: 150;
+        }
+
+        .bottom-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            padding: 8px 12px;
+            background: rgba(12, 17, 30, 0.88);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--border-glass-bright);
+            border-radius: var(--radius-pill);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.68rem;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 20px;
+            transition: var(--transition);
+            cursor: pointer;
+            border: none;
+            background: transparent;
+        }
+
+        .nav-item i {
+            font-size: 1.15rem;
+            transition: var(--transition);
+        }
+
+        .nav-item.active {
+            color: #fff;
+            background: rgba(99, 102, 241, 0.2);
+        }
+
+        .nav-item.active i {
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        /* ==========================================================================
+           8. NOTIFICATIONS DRAWER MODAL
+           ========================================================================== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 200;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition);
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-sheet {
+            width: 100%;
+            max-width: 500px;
+            background: var(--bg-glass-strong);
+            border: 1px solid var(--border-glass-bright);
+            border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+            padding: 24px 20px calc(30px + var(--safe-bottom)) 20px;
+            max-height: 80vh;
+            overflow-y: auto;
+            transform: translateY(100%);
+            transition: transform 0.35s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        .modal-overlay.active .modal-sheet {
+            transform: translateY(0);
+        }
+
+        .sheet-handle {
+            width: 40px;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(255,255,255,0.2);
+            margin: 0 auto 16px auto;
+        }
+
+        .sheet-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+        }
+
+        .sheet-header h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.2rem;
+            color: #fff;
+        }
+
+        .notify-item {
+            padding: 14px;
+            border-radius: var(--radius-md);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-glass);
+            margin-bottom: 10px;
+        }
+
+        .notify-item h4 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .notify-item p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+
+        .notify-time {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* ==========================================================================
+           9. RESPONSIVE BREAKPOINTS (Tablet & Desktop Scale)
+           ========================================================================== */
+        @media (min-width: 640px) {
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr);
             }
-            .group-details h2 {
-                justify-content: center;
+            .stat-card:nth-child(5) {
+                grid-column: span 1;
             }
-            .group-meta {
-                justify-content: center;
+            .members-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
-            .toolbar {
-                flex-direction: column;
-                align-items: stretch;
+            .group-profile-overlap {
+                flex-direction: row;
+                text-align: left;
+                align-items: flex-end;
+                gap: 20px;
             }
-            .filter-group {
-                justify-content: center;
+            .group-avatar-ring {
+                margin-bottom: 0;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .stats-grid {
+                grid-template-columns: repeat(5, 1fr);
+            }
+            .members-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            .modal-overlay {
+                align-items: center;
+            }
+            .modal-sheet {
+                border-radius: var(--radius-xl);
+                padding-bottom: 24px;
             }
         }
     </style>
@@ -726,203 +966,226 @@
         <div class="orb orb-3"></div>
     </div>
 
-    <!-- MAIN HEADER -->
-    <header>
-        <div class="container header-content">
-            <div class="brand">
-                <div class="logo-box">
+    <!-- 1. TOP APP BAR HEADER -->
+    <header class="top-app-bar">
+        <div class="container header-flex">
+            <div class="brand-box">
+                <div class="brand-logo">
                     <i class="fa-solid fa-bolt"></i>
                 </div>
-                <div class="brand-text">
+                <div class="brand-info">
                     <h1>SMSG ELITE</h1>
                     <p>Realtime Messenger Hub</p>
                 </div>
             </div>
-            
+
             <div class="header-actions">
-                <div class="live-status-pill">
+                <div class="live-pill">
                     <div class="pulse-dot"></div>
                     <span>LIVE SYNC</span>
                 </div>
-                <button class="icon-btn" title="Notifications">
+                <button class="icon-btn ripple" id="openNotifyBtn" title="Notifications">
                     <i class="fa-regular fa-bell"></i>
-                    <span class="notification-badge"></span>
+                    <span class="notify-badge" id="notifyBadge"></span>
                 </button>
             </div>
         </div>
     </header>
 
-    <main class="container">
+    <!-- MAIN SCROLL CONTENT AREA -->
+    <main class="container" id="home">
 
-        <!-- 1. GROUP INFORMATION HERO CARD -->
-        <section class="glass-panel group-hero" id="groupHero">
-            <div class="group-hero-content">
-                <div class="group-avatar-container">
-                    <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80" alt="Group Logo" class="group-avatar" id="groupImg">
-                    <div class="group-badge">
-                        <i class="fa-solid fa-shield-halved"></i>
-                    </div>
+        <!-- 2. GROUP HERO COVER & INFORMATION CARD -->
+        <section class="hero-section">
+            <div class="group-card-wrapper">
+                <!-- 16:9 Aspect Cover Image -->
+                <div class="group-cover" id="groupCover">
+                    <div class="group-cover-overlay"></div>
                 </div>
-                <div class="group-details">
-                    <h2 id="groupName"><span class="skeleton skeleton-title" style="width: 200px;"></span></h2>
-                    <p id="groupDesc"><span class="skeleton skeleton-text"></span><span class="skeleton skeleton-text" style="width: 70%;"></span></p>
-                    <div class="group-meta">
-                        <div class="meta-item">
-                            <i class="fa-solid fa-users"></i>
-                            <span>Total: <strong id="heroTotal">-</strong></span>
+
+                <!-- Profile Photo Overlapping Cover Image -->
+                <div class="group-profile-overlap">
+                    <div class="group-avatar-ring">
+                        <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=300&q=80" alt="Group Profile" class="group-avatar-img" id="groupAvatar">
+                        <div class="verified-badge" title="Verified Community">
+                            <i class="fa-solid fa-check"></i>
                         </div>
-                        <div class="meta-item">
-                            <i class="fa-solid fa-circle" style="color: var(--status-active);"></i>
-                            <span>Active Now: <strong id="heroActive">-</strong></span>
-                        </div>
-                        <div class="meta-item">
-                            <i class="fa-regular fa-clock"></i>
-                            <span>Updated: <strong id="heroUpdated">-</strong></span>
+                    </div>
+
+                    <div>
+                        <h1 class="group-title" id="groupTitle">SMSG ELITE COMMUNITY</h1>
+                        <p class="group-desc" id="groupDescription">Official Realtime Messenger Group for High-Performance Members.</p>
+
+                        <div class="group-meta-pills">
+                            <div class="meta-pill">
+                                <i class="fa-solid fa-users"></i>
+                                <span>Total: <strong id="heroTotal">0</strong></span>
+                            </div>
+                            <div class="meta-pill">
+                                <i class="fa-solid fa-circle" style="color: var(--status-active);"></i>
+                                <span>Active: <strong id="heroActive">0</strong></span>
+                            </div>
+                            <div class="meta-pill">
+                                <i class="fa-regular fa-clock"></i>
+                                <span>Updated: <strong id="heroUpdated">Just Now</strong></span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- 2. GROUP STATISTICS CARDS -->
-        <section class="stats-section">
-            <h3 class="section-title">
-                <i class="fa-solid fa-chart-pie" style="color: var(--primary);"></i>
-                Live Metrics Overview
-            </h3>
+        <!-- 3. STATISTICS SECTION (Mobile 2x2 + 1 Full Width) -->
+        <section id="statistics" style="scroll-margin-top: 80px;">
+            <div class="section-header">
+                <h2><i class="fa-solid fa-chart-pie" style="color: var(--primary);"></i> Group Metrics</h2>
+            </div>
+
             <div class="stats-grid">
                 <div class="glass-panel stat-card">
-                    <div class="stat-icon icon-total">
+                    <div class="stat-icon-wrap icon-total">
                         <i class="fa-solid fa-user-group"></i>
                     </div>
-                    <div class="stat-info">
-                        <h3 id="statTotal">0</h3>
-                        <p>Total Members</p>
+                    <div>
+                        <div class="stat-val" id="statTotal">0</div>
+                        <div class="stat-lbl">Total Members</div>
                     </div>
                 </div>
 
                 <div class="glass-panel stat-card">
-                    <div class="stat-icon icon-active">
+                    <div class="stat-icon-wrap icon-active">
                         <i class="fa-solid fa-circle-check"></i>
                     </div>
-                    <div class="stat-info">
-                        <h3 id="statActive">0</h3>
-                        <p>Active Members</p>
+                    <div>
+                        <div class="stat-val" id="statActive">0</div>
+                        <div class="stat-lbl">Active Now</div>
                     </div>
                 </div>
 
                 <div class="glass-panel stat-card">
-                    <div class="stat-icon icon-busy">
+                    <div class="stat-icon-wrap icon-busy">
                         <i class="fa-solid fa-clock-rotate-left"></i>
                     </div>
-                    <div class="stat-info">
-                        <h3 id="statBusy">0</h3>
-                        <p>Busy / Inactive</p>
+                    <div>
+                        <div class="stat-val" id="statBusy">0</div>
+                        <div class="stat-lbl">Busy / Inactive</div>
                     </div>
                 </div>
 
                 <div class="glass-panel stat-card">
-                    <div class="stat-icon icon-offline">
+                    <div class="stat-icon-wrap icon-offline">
                         <i class="fa-solid fa-circle-minus"></i>
                     </div>
-                    <div class="stat-info">
-                        <h3 id="statOffline">0</h3>
-                        <p>Offline Members</p>
+                    <div>
+                        <div class="stat-val" id="statOffline">0</div>
+                        <div class="stat-lbl">Offline</div>
                     </div>
                 </div>
 
+                <!-- 5th Card Spans Full Width on Mobile -->
                 <div class="glass-panel stat-card">
-                    <div class="stat-icon icon-newest">
+                    <div class="stat-icon-wrap icon-newest">
                         <i class="fa-solid fa-user-plus"></i>
                     </div>
-                    <div class="stat-info">
-                        <h3 id="statNewest" style="font-size: 1.1rem; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 110px;">-</h3>
-                        <p>Newest Member</p>
+                    <div style="min-width: 0;">
+                        <div class="stat-val" id="statNewest" style="font-size: 1.1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">-</div>
+                        <div class="stat-lbl">Newest Joined Member</div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- 3. MEMBER DIRECTORY & CONTROLS -->
-        <section>
-            <div class="section-title" style="justify-content: space-between;">
-                <span>
-                    <i class="fa-solid fa-address-book" style="color: var(--accent);"></i>
-                    Group Members Directory
-                </span>
-            </div>
-
-            <!-- Toolbar Filters -->
-            <div class="glass-panel toolbar">
-                <div class="search-box">
+        <!-- 4. SEARCH & FILTER CONTROLS (Sticky Bar) -->
+        <section id="members" style="scroll-margin-top: 80px;">
+            <div class="controls-sticky">
+                <div class="search-field">
                     <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" id="searchInput" placeholder="Search by name, FB ID or member #...">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search by name, FB handle or #...">
                 </div>
 
-                <div class="filter-group">
-                    <button class="filter-btn active" data-filter="all">All</button>
-                    <button class="filter-btn" data-filter="active">🟢 Active</button>
-                    <button class="filter-btn" data-filter="busy">🟡 Busy</button>
-                    <button class="filter-btn" data-filter="offline">🔴 Offline</button>
-                </div>
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                    <div class="filters-scroll">
+                        <button class="filter-chip active" data-filter="all">All</button>
+                        <button class="filter-chip" data-filter="active">🟢 Active</button>
+                        <button class="filter-chip" data-filter="busy">🟡 Busy</button>
+                        <button class="filter-chip" data-filter="offline">🔴 Offline</button>
+                        <button class="filter-chip" data-filter="newest">✨ Newest</button>
+                    </div>
 
-                <div>
-                    <select class="sort-select" id="sortSelect">
-                        <option value="number">Sort by: Member #</option>
-                        <option value="name">Sort by: Name (A-Z)</option>
-                        <option value="recent">Sort by: Last Active</option>
+                    <select class="sort-dropdown" id="sortSelect">
+                        <option value="number"># Number</option>
+                        <option value="name">A-Z Name</option>
+                        <option value="recent">Recent Active</option>
                     </select>
                 </div>
             </div>
 
-            <!-- Member Cards Grid -->
-            <div class="members-grid" id="membersGrid">
-                <!-- Initial Skeletons -->
-                <div class="glass-panel member-card">
-                    <div class="member-header">
-                        <div class="skeleton skeleton-avatar"></div>
-                        <div>
-                            <div class="skeleton skeleton-title"></div>
-                            <div class="skeleton skeleton-sub"></div>
+            <!-- 5. MEMBER CARDS GRID -->
+            <div class="members-section">
+                <div class="members-grid" id="membersGrid">
+                    <!-- Skeleton Cards Loading State -->
+                    <div class="glass-panel member-card">
+                        <div class="member-card-top">
+                            <div class="skeleton" style="width: 58px; height: 58px; border-radius: 50%;"></div>
+                            <div style="flex:1;">
+                                <div class="skeleton" style="width: 120px; height: 16px; margin-bottom: 6px;"></div>
+                                <div class="skeleton" style="width: 80px; height: 12px;"></div>
+                            </div>
                         </div>
                     </div>
-                    <div class="member-body">
-                        <div class="skeleton skeleton-text"></div>
-                        <div class="skeleton skeleton-text"></div>
-                    </div>
-                </div>
-                <div class="glass-panel member-card">
-                    <div class="member-header">
-                        <div class="skeleton skeleton-avatar"></div>
-                        <div>
-                            <div class="skeleton skeleton-title"></div>
-                            <div class="skeleton skeleton-sub"></div>
+                    <div class="glass-panel member-card">
+                        <div class="member-card-top">
+                            <div class="skeleton" style="width: 58px; height: 58px; border-radius: 50%;"></div>
+                            <div style="flex:1;">
+                                <div class="skeleton" style="width: 120px; height: 16px; margin-bottom: 6px;"></div>
+                                <div class="skeleton" style="width: 80px; height: 12px;"></div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="member-body">
-                        <div class="skeleton skeleton-text"></div>
-                        <div class="skeleton skeleton-text"></div>
-                    </div>
-                </div>
-                <div class="glass-panel member-card">
-                    <div class="member-header">
-                        <div class="skeleton skeleton-avatar"></div>
-                        <div>
-                            <div class="skeleton skeleton-title"></div>
-                            <div class="skeleton skeleton-sub"></div>
-                        </div>
-                    </div>
-                    <div class="member-body">
-                        <div class="skeleton skeleton-text"></div>
-                        <div class="skeleton skeleton-text"></div>
                     </div>
                 </div>
             </div>
         </section>
+
     </main>
 
+    <!-- 6. FLOATING BOTTOM NAVIGATION BAR (iOS / Android Native Vibe) -->
+    <div class="bottom-nav-wrap">
+        <nav class="bottom-nav">
+            <button class="nav-item active" data-target="#home">
+                <i class="fa-solid fa-house"></i>
+                <span>Home</span>
+            </button>
+            <button class="nav-item" data-target="#statistics">
+                <i class="fa-solid fa-chart-simple"></i>
+                <span>Stats</span>
+            </button>
+            <button class="nav-item" data-target="#members">
+                <i class="fa-solid fa-users"></i>
+                <span>Members</span>
+            </button>
+            <button class="nav-item" id="navNotifyBtn">
+                <i class="fa-solid fa-bell"></i>
+                <span>Updates</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- 7. NOTIFICATIONS DRAWER MODAL SHEET -->
+    <div class="modal-overlay" id="notifyModal">
+        <div class="modal-sheet">
+            <div class="sheet-handle"></div>
+            <div class="sheet-header">
+                <h3><i class="fa-solid fa-bullhorn" style="color: var(--accent);"></i> Group Updates</h3>
+                <button class="icon-btn" id="closeNotifyBtn" style="width: 32px; height: 32px;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="notificationsList">
+                <p style="text-align: center; color: var(--text-dim); padding: 20px;">No updates published yet.</p>
+            </div>
+        </div>
+    </div>
+
     <!-- ==========================================================================
-       JAVASCRIPT LOGIC & FIREBASE INTEGRATION
+       JAVASCRIPT LOGIC & FIREBASE REALTIME SYNC
        ========================================================================== -->
     <script>
         // 1. Firebase Configuration
@@ -938,10 +1201,11 @@
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+        const db = firebase.database();
 
-        // 2. Application State Management
-        let rawMembersData = [];
+        // Application State
+        let rawMembers = [];
+        let notificationsData = [];
         let currentFilter = 'all';
         let currentSort = 'number';
         let searchQuery = '';
@@ -949,201 +1213,273 @@
         // DOM Elements
         const membersGrid = document.getElementById('membersGrid');
         const searchInput = document.getElementById('searchInput');
-        const filterBtns = document.querySelectorAll('.filter-btn');
+        const filterChips = document.querySelectorAll('.filter-chip');
         const sortSelect = document.getElementById('sortSelect');
+        const notifyModal = document.getElementById('notifyModal');
 
-        // Fallback Demo Data if Firebase node is completely empty
-        const sampleFallbackMembers = [
-            { id: "1", memberNumber: 1, name: "Alex Rivera", fbName: "alex.rivera.dev", photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80", status: "active", lastActive: "Just now", joinDate: "Jan 2023" },
-            { id: "2", memberNumber: 2, name: "Sarah Connor", fbName: "sarah.c", photo: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80", status: "busy", lastActive: "15m ago", joinDate: "Feb 2023" },
-            { id: "3", memberNumber: 3, name: "David Vance", fbName: "vance.builds", photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80", status: "offline", lastActive: "2 hours ago", joinDate: "Mar 2023" },
-            { id: "4", memberNumber: 4, name: "Elena Rostova", fbName: "elena.design", photo: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=200&q=80", status: "active", lastActive: "Just now", joinDate: "Apr 2023" }
+        // Fallback Demo Data for graceful display if RTDB node is empty
+        const sampleMembers = [
+            { id: "1", memberNumber: 1, name: "Ahad Ahmed", fbName: "Ahad Ahmed", fbLink: "https://facebook.com", photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80", status: "active", lastActive: "just now", joinDate: "1999-06-20" },
+            { id: "2", memberNumber: 2, name: "Lamiya", fbName: "নিলয়ের আপু", fbLink: "https://facebook.com", photo: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80", status: "active", lastActive: "just now", joinDate: "2026-07-27" }
         ];
 
-        // 3. REALTIME DATABASE LISTENERS
-
-        // Listener: Group Information
-        database.ref('groupInfo').on('value', (snapshot) => {
+        // 2. REALTIME LISTENERS
+        
+        // Group Info Listener
+        db.ref('groupInfo').on('value', (snapshot) => {
             const data = snapshot.val();
             if (data) {
-                document.getElementById('groupName').textContent = data.name || "SMSG Elite Group";
-                document.getElementById('groupDesc').textContent = data.description || "Official Messenger Community";
-                if(data.photo) document.getElementById('groupImg').src = data.photo;
-                document.getElementById('heroUpdated').textContent = data.lastUpdated || new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            } else {
-                // Fallback Display
-                document.getElementById('groupName').textContent = "SMSG Elite Official";
-                document.getElementById('groupDesc').textContent = "Official Messenger Group for High-Performance Tech & Strategy Discussions. Connects members in real time.";
-                document.getElementById('heroUpdated').textContent = "Live";
+                document.getElementById('groupTitle').textContent = data.name || "SMSG ELITE COMMUNITY";
+                document.getElementById('groupDescription').textContent = data.description || "Official Realtime Messenger Group";
+                if(data.photo) document.getElementById('groupAvatar').src = data.photo;
+                if(data.photo) document.getElementById('groupCover').style.backgroundImage = `url('${data.photo}')`;
+                
+                const timeStr = data.lastUpdated ? new Date(data.lastUpdated).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'Just Now';
+                document.getElementById('heroUpdated').textContent = timeStr;
             }
-        }, (error) => {
-            console.warn("Firebase groupInfo fetch error, showing defaults:", error);
         });
 
-        // Listener: Members List
-        database.ref('members').on('value', (snapshot) => {
+        // Members Listener
+        db.ref('members').on('value', (snapshot) => {
             const data = snapshot.val();
-            
             if (data) {
-                // Convert Firebase Object to Array if needed
                 if (Array.isArray(data)) {
-                    rawMembersData = data.filter(Boolean);
+                    rawMembers = data.filter(Boolean);
                 } else if (typeof data === 'object') {
-                    rawMembersData = Object.keys(data).map(key => ({
-                        id: key,
-                        ...data[key]
-                    }));
+                    rawMembers = Object.keys(data).map(key => ({ id: key, ...data[key] }));
                 }
             } else {
-                // If database is empty, load sample data visually so dashboard is fully functional
-                rawMembersData = sampleFallbackMembers;
+                rawMembers = sampleMembers;
             }
-
-            updateDashboardUI();
-        }, (error) => {
-            console.error("Firebase members read error:", error);
-            rawMembersData = sampleFallbackMembers;
-            updateDashboardUI();
+            updateUI();
+        }, (err) => {
+            console.warn("RTDB Read error, fallback loaded:", err);
+            rawMembers = sampleMembers;
+            updateUI();
         });
 
-        // 4. METRICS & UI UPDATER
-        function updateDashboardUI() {
-            calculateAndRenderStats();
-            renderMembersGrid();
+        // Notifications Listener
+        db.ref('notifications').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                notificationsData = Object.values(data);
+                document.getElementById('notifyBadge').style.display = notificationsData.length > 0 ? 'block' : 'none';
+            } else {
+                notificationsData = [];
+                document.getElementById('notifyBadge').style.display = 'none';
+            }
+            renderNotifications();
+        });
+
+        // 3. UI RENDERING & STATS COMPUTATION
+        function updateUI() {
+            calculateStats();
+            renderMembers();
         }
 
-        function calculateAndRenderStats() {
-            const total = rawMembersData.length;
-            const active = rawMembersData.filter(m => m.status === 'active').length;
-            const busy = rawMembersData.filter(m => m.status === 'busy').length;
-            const offline = rawMembersData.filter(m => m.status === 'offline').length;
-            
-            // Find Newest Member (Highest memberNumber or last array item)
-            let newest = "-";
-            if (rawMembersData.length > 0) {
-                const sorted = [...rawMembersData].sort((a, b) => (b.memberNumber || 0) - (a.memberNumber || 0));
-                newest = sorted[0].name ? sorted[0].name.split(' ')[0] : "-";
-            }
+        function calculateStats() {
+            const total = rawMembers.length;
+            const active = rawMembers.filter(m => m.status === 'active').length;
+            const busy = rawMembers.filter(m => m.status === 'busy').length;
+            const offline = rawMembers.filter(m => m.status === 'offline').length;
 
-            // Update DOM Elements
-            document.getElementById('statTotal').textContent = total;
-            document.getElementById('statActive').textContent = active;
-            document.getElementById('statBusy').textContent = busy;
-            document.getElementById('statOffline').textContent = offline;
-            document.getElementById('statNewest').textContent = newest;
+            // Animate Counter Values
+            animateCounter('statTotal', total);
+            animateCounter('statActive', active);
+            animateCounter('statBusy', busy);
+            animateCounter('statOffline', offline);
 
             document.getElementById('heroTotal').textContent = total;
             document.getElementById('heroActive').textContent = active;
+
+            // Newest Member
+            if (rawMembers.length > 0) {
+                const sorted = [...rawMembers].sort((a,b) => (b.memberNumber || 0) - (a.memberNumber || 0));
+                document.getElementById('statNewest').textContent = sorted[0].name || sorted[0].fbName || '-';
+            }
         }
 
-        // 5. RENDER MEMBER CARDS WITH FILTER & SORT
-        function renderMembersGrid() {
-            let processed = [...rawMembersData];
+        function animateCounter(elementId, targetVal) {
+            const el = document.getElementById(elementId);
+            const startVal = parseInt(el.textContent) || 0;
+            if (startVal === targetVal) return;
 
-            // A. Search Filter
+            let current = startVal;
+            const step = targetVal > startVal ? 1 : -1;
+            const timer = setInterval(() => {
+                current += step;
+                el.textContent = current;
+                if (current === targetVal) clearInterval(timer);
+            }, 30);
+        }
+
+        function renderMembers() {
+            let list = [...rawMembers];
+
+            // Search
             if (searchQuery.trim() !== '') {
                 const q = searchQuery.toLowerCase();
-                processed = processed.filter(m => 
+                list = list.filter(m => 
                     (m.name && m.name.toLowerCase().includes(q)) ||
                     (m.fbName && m.fbName.toLowerCase().includes(q)) ||
                     (m.memberNumber && m.memberNumber.toString().includes(q))
                 );
             }
 
-            // B. Status Filter
-            if (currentFilter !== 'all') {
-                processed = processed.filter(m => m.status === currentFilter);
+            // Filter
+            if (currentFilter === 'newest') {
+                list.sort((a,b) => (b.memberNumber || 0) - (a.memberNumber || 0));
+            } else if (currentFilter !== 'all') {
+                list = list.filter(m => m.status === currentFilter);
             }
 
-            // C. Sort
-            processed.sort((a, b) => {
+            // Sort Dropdown
+            list.sort((a, b) => {
                 if (currentSort === 'name') {
                     return (a.name || '').localeCompare(b.name || '');
                 } else if (currentSort === 'recent') {
-                    // Simple priority for active status or string compare
                     return (a.status === 'active' ? -1 : 1);
-                } else {
-                    // Default Sort by Member Number
+                } else if (currentFilter !== 'newest') {
                     return (a.memberNumber || 0) - (b.memberNumber || 0);
                 }
+                return 0;
             });
 
-            // Render to DOM
-            if (processed.length === 0) {
+            if (list.length === 0) {
                 membersGrid.innerHTML = `
                     <div class="empty-state">
                         <i class="fa-solid fa-user-slash"></i>
-                        <p>No members found matching your filters.</p>
+                        <p>No members found matching your search.</p>
                     </div>
                 `;
                 return;
             }
 
-            membersGrid.innerHTML = processed.map(member => createMemberCardHTML(member)).join('');
+            membersGrid.innerHTML = list.map(m => createCardHTML(m)).join('');
         }
 
-        // Helper: Generate HTML for Single Member Card
-        function createMemberCardHTML(m) {
+        function createCardHTML(m) {
             const status = m.status || 'offline';
-            const statusPillClass = `pill-${status}`;
-            const statusDotClass = `status-dot-${status}`;
-            const avatarImg = m.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(m.name || 'User')}&background=random&color=fff`;
+            const avatar = m.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(m.name || 'User')}&background=random`;
+            const fbUrl = m.fbLink || (m.fbName ? `https://facebook.com/${m.fbName}` : '#');
+
+            const pillClass = status === 'active' ? 'pill-act' : (status === 'busy' ? 'pill-bsy' : 'pill-off');
+            const dotClass = status === 'active' ? 'dot-active' : (status === 'busy' ? 'dot-busy' : 'dot-offline');
 
             return `
-                <div class="glass-panel member-card">
-                    <span class="member-tag">#${m.memberNumber || '0'}</span>
+                <div class="glass-panel member-card ripple">
+                    <span class="member-number-tag">#${m.memberNumber || '0'}</span>
                     
-                    <div class="member-header">
-                        <div class="avatar-wrap">
-                            <img src="${avatarImg}" alt="${m.name || 'Member'}" class="member-avatar" onerror="this.src='https://ui-avatars.com/api/?name=User'">
-                            <div class="status-badge-dot ${statusDotClass}"></div>
+                    <div class="member-card-top">
+                        <div class="member-avatar-wrap">
+                            <img src="${avatar}" alt="${m.name || 'Member'}" class="member-avatar" onerror="this.src='https://ui-avatars.com/api/?name=User'">
+                            <div class="status-dot-indicator ${dotClass}"></div>
                         </div>
-                        <div class="member-info">
-                            <h4 title="${m.name || 'Unknown'}">${m.name || 'Unknown Member'}</h4>
-                            <a href="https://facebook.com/${m.fbName || ''}" target="_blank" class="fb-handle">
+                        <div class="member-main-info">
+                            <div class="member-name">${m.name || 'Unknown Member'}</div>
+                            <a href="${fbUrl}" target="_blank" class="member-fb-link">
                                 <i class="fa-brands fa-facebook-messenger"></i> @${m.fbName || 'user'}
                             </a>
                         </div>
                     </div>
 
-                    <div class="member-body">
-                        <div class="info-row">
+                    <div class="member-card-details">
+                        <div class="detail-item">
                             <span>Status</span>
-                            <span class="status-pill ${statusPillClass}">
-                                <i class="fa-solid fa-circle" style="font-size: 0.5rem;"></i> ${status}
-                            </span>
+                            <strong class="status-pill-badge ${pillClass}">${status}</strong>
                         </div>
-                        <div class="info-row">
+                        <div class="detail-item">
                             <span>Last Active</span>
-                            <span>${m.lastActive || 'N/A'}</span>
+                            <strong>${m.lastActive || 'N/A'}</strong>
                         </div>
-                        <div class="info-row">
+                        <div class="detail-item">
                             <span>Joined</span>
-                            <span>${m.joinDate || 'N/A'}</span>
+                            <strong>${m.joinDate || 'N/A'}</strong>
                         </div>
                     </div>
+
+                    <a href="${fbUrl}" target="_blank" class="profile-action-btn">
+                        <i class="fa-solid fa-paper-plane"></i> View Profile / Message
+                    </a>
                 </div>
             `;
         }
 
-        // 6. EVENT LISTENERS FOR CONTROLS
-        searchInput.addEventListener('input', (e) => {
-            searchQuery = e.target.value;
-            renderMembersGrid();
+        // 4. NOTIFICATIONS DRAWER
+        function renderNotifications() {
+            const listEl = document.getElementById('notificationsList');
+            if (notificationsData.length === 0) {
+                listEl.innerHTML = `<p style="text-align: center; color: var(--text-dim); padding: 20px;">No updates published yet.</p>`;
+                return;
+            }
+
+            listEl.innerHTML = notificationsData.map(n => `
+                <div class="notify-item">
+                    <h4>${n.title || 'Announcement'}</h4>
+                    <p>${n.description || ''}</p>
+                    <div class="notify-time">
+                        <i class="fa-regular fa-clock"></i> ${n.date || ''} ${n.time || ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Event Handlers: Modal Open / Close
+        document.getElementById('openNotifyBtn').addEventListener('click', () => notifyModal.classList.add('active'));
+        document.getElementById('navNotifyBtn').addEventListener('click', () => notifyModal.classList.add('active'));
+        document.getElementById('closeNotifyBtn').addEventListener('click', () => notifyModal.classList.remove('active'));
+        notifyModal.addEventListener('click', (e) => {
+            if(e.target === notifyModal) notifyModal.classList.remove('active');
         });
 
-        filterBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                filterBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                currentFilter = btn.getAttribute('data-filter');
-                renderMembersGrid();
+        // Event Handlers: Search, Filters, Sort
+        searchInput.addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            renderMembers();
+        });
+
+        filterChips.forEach(chip => {
+            chip.addEventListener('click', () => {
+                filterChips.forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+                currentFilter = chip.getAttribute('data-filter');
+                renderMembers();
             });
         });
 
         sortSelect.addEventListener('change', (e) => {
             currentSort = e.target.value;
-            renderMembersGrid();
+            renderMembers();
+        });
+
+        // Bottom Navigation Active Handler & Smooth Scroll
+        const navItems = document.querySelectorAll('.bottom-nav .nav-item');
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const target = item.getAttribute('data-target');
+                if (target) {
+                    navItems.forEach(i => i.classList.remove('active'));
+                    item.classList.add('active');
+                    const targetEl = document.querySelector(target);
+                    if (targetEl) targetEl.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        // Touch Ripple Effect Trigger
+        document.addEventListener('click', function (e) {
+            const target = e.target.closest('.ripple');
+            if (target) {
+                const rect = target.getBoundingClientRect();
+                const ink = document.createElement('span');
+                ink.className = 'ripple-ink';
+                const size = Math.max(rect.width, rect.height);
+                ink.style.width = ink.style.height = size + 'px';
+                ink.style.left = (e.clientX - rect.left - size / 2) + 'px';
+                ink.style.top = (e.clientY - rect.top - size / 2) + 'px';
+                target.appendChild(ink);
+                setTimeout(() => ink.remove(), 500);
+            }
         });
     </script>
 </body>
