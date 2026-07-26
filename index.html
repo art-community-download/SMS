@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMSG - Premium Group Dashboard</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Firebase JS SDK (Compat mode for single-file RTDB) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+    <style>
+        /* ==========================================================================
+           1. CSS VARIABLES & BASE RESET
+           ========================================================================== */
+        :root {
+            --bg-dark: #090d16;
+            --bg-card: rgba(22, 28, 45, 0.55);
+            --bg-card-hover: rgba(30, 39, 62, 0.7);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --border-glass-bright: rgba(255, 255, 255, 0.18);
+            
+            --primary: #6366f1;
+            --primary-glow: rgba(99, 102, 241, 0.4);
+            --accent: #06b6d4;
+            --accent-glow: rgba(6, 182, 212, 0.4);
+
+            --status-active: #10b981;
+            --status-active-glow: rgba(16, 185, 129, 0.4);
+            --status-busy: #f59e0b;
+            --status-busy-glow: rgba(245, 158, 11, 0.4);
+            --status-offline: #ef4444;
+            --status-offline-glow: rgba(239, 68, 68, 0.4);
+
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --text-dim: #6b7280;
+
+            --radius-lg: 20px;
+            --radius-md: 14px;
+            --radius-sm: 8px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            padding-bottom: 60px;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* ==========================================================================
+           2. BACKGROUND AMBIENT SHAPES & GLASS EFFECT
+           ========================================================================== */
+        .ambient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.35;
+            animation: floatOrb 20s infinite alternate ease-in-out;
+        }
+
+        .orb-1 {
+            top: -10%;
+            left: -10%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, #6366f1 0%, transparent 70%);
+        }
+
+        .orb-2 {
+            bottom: -10%;
+            right: -10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, #06b6d4 0%, transparent 70%);
+        }
+
+        .orb-3 {
+            top: 40%;
+            left: 40%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, #8b5cf6 0%, transparent 70%);
+            animation-delay: -7s;
+        }
+
+        @keyframes floatOrb {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(60px, 40px) scale(1.1); }
+            100% { transform: translate(-40px, 80px) scale(0.9); }
+        }
+
+        .glass-panel {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* ==========================================================================
+           3. HEADER SECTION
+           ========================================================================== */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(9, 13, 22, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-glass);
+            padding: 16px 0;
+            margin-bottom: 30px;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .logo-box {
+            width: 45px;
+            height: 45px;
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            color: #fff;
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+
+        .brand-text h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(to right, #fff, var(--text-muted));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-text p {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .live-status-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--status-active);
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--status-active);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--status-active);
+            animation: pulse 1.8s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        .icon-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-glass);
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .icon-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--border-glass-bright);
+            transform: translateY(-2px);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--accent);
+        }
+
+        /* ==========================================================================
+           4. HERO - GROUP INFORMATION CARD
+           ========================================================================== */
+        .group-hero {
+            padding: 30px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .group-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.05));
+            pointer-events: none;
+        }
+
+        .group-hero-content {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .group-avatar-container {
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .group-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 24px;
+            object-fit: cover;
+            border: 2px solid var(--border-glass-bright);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .group-badge {
+            position: absolute;
+            bottom: -6px;
+            right: -6px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            color: #fff;
+            border: 2px solid var(--bg-dark);
+        }
+
+        .group-details {
+            flex: 1;
+        }
+
+        .group-details h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .group-details p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 16px;
+            max-width: 750px;
+        }
+
+        .group-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .meta-item i {
+            color: var(--primary);
+        }
+
+        /* ==========================================================================
+           5. STATISTICS GRID
+           ========================================================================== */
+        .stats-section {
+            margin-bottom: 35px;
+        }
+
+        .section-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-main);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 18px;
+        }
+
+        .stat-card {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--border-glass-bright);
+            background: var(--bg-card-hover);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .icon-total { background: rgba(99, 102, 241, 0.15); color: var(--primary); }
+        .icon-active { background: rgba(16, 185, 129, 0.15); color: var(--status-active); }
+        .icon-busy { background: rgba(245, 158, 11, 0.15); color: var(--status-busy); }
+        .icon-offline { background: rgba(239, 68, 68, 0.15); color: var(--status-offline); }
+        .icon-newest { background: rgba(6, 182, 212, 0.15); color: var(--accent); }
+
+        .stat-info h3 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+            line-height: 1.1;
+        }
+
+        .stat-info p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* ==========================================================================
+           6. CONTROLS TOOLBAR (Search, Filter, Sort)
+           ========================================================================== */
+        .toolbar {
+            padding: 16px 20px;
+            margin-bottom: 25px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            min-width: 260px;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 16px 10px 40px;
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            color: var(--text-main);
+            font-size: 0.9rem;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 12px var(--primary-glow);
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 14px;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-glass);
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: rgba(99, 102, 241, 0.15);
+            border-color: var(--primary);
+            color: #fff;
+        }
+
+        .sort-select {
+            padding: 9px 14px;
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            color: var(--text-main);
+            font-size: 0.85rem;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .sort-select option {
+            background: var(--bg-dark);
+            color: var(--text-main);
+        }
+
+        /* ==========================================================================
+           7. MEMBERS LIST & CARDS
+           ========================================================================== */
+        .members-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .member-card {
+            padding: 20px;
+            position: relative;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .member-card:hover {
+            transform: translateY(-6px);
+            border-color: var(--border-glass-bright);
+            background: var(--bg-card-hover);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+        }
+
+        .member-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+
+        .avatar-wrap {
+            position: relative;
+        }
+
+        .member-avatar {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--border-glass);
+        }
+
+        .status-badge-dot {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid var(--bg-dark);
+        }
+
+        .status-dot-active { background: var(--status-active); box-shadow: 0 0 8px var(--status-active); }
+        .status-dot-busy { background: var(--status-busy); box-shadow: 0 0 8px var(--status-busy); }
+        .status-dot-offline { background: var(--status-offline); box-shadow: 0 0 8px var(--status-offline); }
+
+        .member-info h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 160px;
+        }
+
+        .fb-handle {
+            font-size: 0.78rem;
+            color: var(--text-dim);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: var(--transition);
+        }
+
+        .fb-handle:hover {
+            color: var(--accent);
+        }
+
+        .member-body {
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 0.8rem;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-muted);
+        }
+
+        .info-row span:last-child {
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+
+        .pill-active { background: rgba(16, 185, 129, 0.12); color: var(--status-active); }
+        .pill-busy { background: rgba(245, 158, 11, 0.12); color: var(--status-busy); }
+        .pill-offline { background: rgba(239, 68, 68, 0.12); color: var(--status-offline); }
+
+        .member-tag {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-dim);
+            background: rgba(255, 255, 255, 0.04);
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-glass);
+        }
+
+        /* ==========================================================================
+           8. LOADING SKELETONS & EMPTY STATE
+           ========================================================================== */
+        .skeleton {
+            background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
+            background-size: 200% 100%;
+            animation: loadingSkeleton 1.5s infinite;
+            border-radius: 6px;
+        }
+
+        @keyframes loadingSkeleton {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .skeleton-avatar { width: 58px; height: 58px; border-radius: 50%; }
+        .skeleton-title { width: 120px; height: 16px; margin-bottom: 8px; }
+        .skeleton-sub { width: 80px; height: 12px; }
+        .skeleton-text { width: 100%; height: 12px; margin-top: 6px; }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-dim);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        /* Responsive Design Adjustments */
+        @media (max-width: 768px) {
+            .group-hero-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            .group-details h2 {
+                justify-content: center;
+            }
+            .group-meta {
+                justify-content: center;
+            }
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .filter-group {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient Glowing Background Shapes -->
+    <div class="ambient-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <!-- MAIN HEADER -->
+    <header>
+        <div class="container header-content">
+            <div class="brand">
+                <div class="logo-box">
+                    <i class="fa-solid fa-bolt"></i>
+                </div>
+                <div class="brand-text">
+                    <h1>SMSG ELITE</h1>
+                    <p>Realtime Messenger Hub</p>
+                </div>
+            </div>
+            
+            <div class="header-actions">
+                <div class="live-status-pill">
+                    <div class="pulse-dot"></div>
+                    <span>LIVE SYNC</span>
+                </div>
+                <button class="icon-btn" title="Notifications">
+                    <i class="fa-regular fa-bell"></i>
+                    <span class="notification-badge"></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <!-- 1. GROUP INFORMATION HERO CARD -->
+        <section class="glass-panel group-hero" id="groupHero">
+            <div class="group-hero-content">
+                <div class="group-avatar-container">
+                    <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80" alt="Group Logo" class="group-avatar" id="groupImg">
+                    <div class="group-badge">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                </div>
+                <div class="group-details">
+                    <h2 id="groupName"><span class="skeleton skeleton-title" style="width: 200px;"></span></h2>
+                    <p id="groupDesc"><span class="skeleton skeleton-text"></span><span class="skeleton skeleton-text" style="width: 70%;"></span></p>
+                    <div class="group-meta">
+                        <div class="meta-item">
+                            <i class="fa-solid fa-users"></i>
+                            <span>Total: <strong id="heroTotal">-</strong></span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fa-solid fa-circle" style="color: var(--status-active);"></i>
+                            <span>Active Now: <strong id="heroActive">-</strong></span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fa-regular fa-clock"></i>
+                            <span>Updated: <strong id="heroUpdated">-</strong></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. GROUP STATISTICS CARDS -->
+        <section class="stats-section">
+            <h3 class="section-title">
+                <i class="fa-solid fa-chart-pie" style="color: var(--primary);"></i>
+                Live Metrics Overview
+            </h3>
+            <div class="stats-grid">
+                <div class="glass-panel stat-card">
+                    <div class="stat-icon icon-total">
+                        <i class="fa-solid fa-user-group"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="statTotal">0</h3>
+                        <p>Total Members</p>
+                    </div>
+                </div>
+
+                <div class="glass-panel stat-card">
+                    <div class="stat-icon icon-active">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="statActive">0</h3>
+                        <p>Active Members</p>
+                    </div>
+                </div>
+
+                <div class="glass-panel stat-card">
+                    <div class="stat-icon icon-busy">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="statBusy">0</h3>
+                        <p>Busy / Inactive</p>
+                    </div>
+                </div>
+
+                <div class="glass-panel stat-card">
+                    <div class="stat-icon icon-offline">
+                        <i class="fa-solid fa-circle-minus"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="statOffline">0</h3>
+                        <p>Offline Members</p>
+                    </div>
+                </div>
+
+                <div class="glass-panel stat-card">
+                    <div class="stat-icon icon-newest">
+                        <i class="fa-solid fa-user-plus"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="statNewest" style="font-size: 1.1rem; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 110px;">-</h3>
+                        <p>Newest Member</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. MEMBER DIRECTORY & CONTROLS -->
+        <section>
+            <div class="section-title" style="justify-content: space-between;">
+                <span>
+                    <i class="fa-solid fa-address-book" style="color: var(--accent);"></i>
+                    Group Members Directory
+                </span>
+            </div>
+
+            <!-- Toolbar Filters -->
+            <div class="glass-panel toolbar">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="searchInput" placeholder="Search by name, FB ID or member #...">
+                </div>
+
+                <div class="filter-group">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="active">🟢 Active</button>
+                    <button class="filter-btn" data-filter="busy">🟡 Busy</button>
+                    <button class="filter-btn" data-filter="offline">🔴 Offline</button>
+                </div>
+
+                <div>
+                    <select class="sort-select" id="sortSelect">
+                        <option value="number">Sort by: Member #</option>
+                        <option value="name">Sort by: Name (A-Z)</option>
+                        <option value="recent">Sort by: Last Active</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Member Cards Grid -->
+            <div class="members-grid" id="membersGrid">
+                <!-- Initial Skeletons -->
+                <div class="glass-panel member-card">
+                    <div class="member-header">
+                        <div class="skeleton skeleton-avatar"></div>
+                        <div>
+                            <div class="skeleton skeleton-title"></div>
+                            <div class="skeleton skeleton-sub"></div>
+                        </div>
+                    </div>
+                    <div class="member-body">
+                        <div class="skeleton skeleton-text"></div>
+                        <div class="skeleton skeleton-text"></div>
+                    </div>
+                </div>
+                <div class="glass-panel member-card">
+                    <div class="member-header">
+                        <div class="skeleton skeleton-avatar"></div>
+                        <div>
+                            <div class="skeleton skeleton-title"></div>
+                            <div class="skeleton skeleton-sub"></div>
+                        </div>
+                    </div>
+                    <div class="member-body">
+                        <div class="skeleton skeleton-text"></div>
+                        <div class="skeleton skeleton-text"></div>
+                    </div>
+                </div>
+                <div class="glass-panel member-card">
+                    <div class="member-header">
+                        <div class="skeleton skeleton-avatar"></div>
+                        <div>
+                            <div class="skeleton skeleton-title"></div>
+                            <div class="skeleton skeleton-sub"></div>
+                        </div>
+                    </div>
+                    <div class="member-body">
+                        <div class="skeleton skeleton-text"></div>
+                        <div class="skeleton skeleton-text"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ==========================================================================
+       JAVASCRIPT LOGIC & FIREBASE INTEGRATION
+       ========================================================================== -->
+    <script>
+        // 1. Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDgWu8a6EXc51RgiqfW-9F85BSlV6QWqF0",
+            authDomain: "smsg-cb882.firebaseapp.com",
+            databaseURL: "https://smsg-cb882-default-rtdb.firebaseio.com",
+            projectId: "smsg-cb882",
+            storageBucket: "smsg-cb882.firebasestorage.app",
+            messagingSenderId: "98493494470",
+            appId: "1:98493494470:web:148dc43ea62632958dd3c7"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // 2. Application State Management
+        let rawMembersData = [];
+        let currentFilter = 'all';
+        let currentSort = 'number';
+        let searchQuery = '';
+
+        // DOM Elements
+        const membersGrid = document.getElementById('membersGrid');
+        const searchInput = document.getElementById('searchInput');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const sortSelect = document.getElementById('sortSelect');
+
+        // Fallback Demo Data if Firebase node is completely empty
+        const sampleFallbackMembers = [
+            { id: "1", memberNumber: 1, name: "Alex Rivera", fbName: "alex.rivera.dev", photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80", status: "active", lastActive: "Just now", joinDate: "Jan 2023" },
+            { id: "2", memberNumber: 2, name: "Sarah Connor", fbName: "sarah.c", photo: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80", status: "busy", lastActive: "15m ago", joinDate: "Feb 2023" },
+            { id: "3", memberNumber: 3, name: "David Vance", fbName: "vance.builds", photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80", status: "offline", lastActive: "2 hours ago", joinDate: "Mar 2023" },
+            { id: "4", memberNumber: 4, name: "Elena Rostova", fbName: "elena.design", photo: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=200&q=80", status: "active", lastActive: "Just now", joinDate: "Apr 2023" }
+        ];
+
+        // 3. REALTIME DATABASE LISTENERS
+
+        // Listener: Group Information
+        database.ref('groupInfo').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                document.getElementById('groupName').textContent = data.name || "SMSG Elite Group";
+                document.getElementById('groupDesc').textContent = data.description || "Official Messenger Community";
+                if(data.photo) document.getElementById('groupImg').src = data.photo;
+                document.getElementById('heroUpdated').textContent = data.lastUpdated || new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            } else {
+                // Fallback Display
+                document.getElementById('groupName').textContent = "SMSG Elite Official";
+                document.getElementById('groupDesc').textContent = "Official Messenger Group for High-Performance Tech & Strategy Discussions. Connects members in real time.";
+                document.getElementById('heroUpdated').textContent = "Live";
+            }
+        }, (error) => {
+            console.warn("Firebase groupInfo fetch error, showing defaults:", error);
+        });
+
+        // Listener: Members List
+        database.ref('members').on('value', (snapshot) => {
+            const data = snapshot.val();
+            
+            if (data) {
+                // Convert Firebase Object to Array if needed
+                if (Array.isArray(data)) {
+                    rawMembersData = data.filter(Boolean);
+                } else if (typeof data === 'object') {
+                    rawMembersData = Object.keys(data).map(key => ({
+                        id: key,
+                        ...data[key]
+                    }));
+                }
+            } else {
+                // If database is empty, load sample data visually so dashboard is fully functional
+                rawMembersData = sampleFallbackMembers;
+            }
+
+            updateDashboardUI();
+        }, (error) => {
+            console.error("Firebase members read error:", error);
+            rawMembersData = sampleFallbackMembers;
+            updateDashboardUI();
+        });
+
+        // 4. METRICS & UI UPDATER
+        function updateDashboardUI() {
+            calculateAndRenderStats();
+            renderMembersGrid();
+        }
+
+        function calculateAndRenderStats() {
+            const total = rawMembersData.length;
+            const active = rawMembersData.filter(m => m.status === 'active').length;
+            const busy = rawMembersData.filter(m => m.status === 'busy').length;
+            const offline = rawMembersData.filter(m => m.status === 'offline').length;
+            
+            // Find Newest Member (Highest memberNumber or last array item)
+            let newest = "-";
+            if (rawMembersData.length > 0) {
+                const sorted = [...rawMembersData].sort((a, b) => (b.memberNumber || 0) - (a.memberNumber || 0));
+                newest = sorted[0].name ? sorted[0].name.split(' ')[0] : "-";
+            }
+
+            // Update DOM Elements
+            document.getElementById('statTotal').textContent = total;
+            document.getElementById('statActive').textContent = active;
+            document.getElementById('statBusy').textContent = busy;
+            document.getElementById('statOffline').textContent = offline;
+            document.getElementById('statNewest').textContent = newest;
+
+            document.getElementById('heroTotal').textContent = total;
+            document.getElementById('heroActive').textContent = active;
+        }
+
+        // 5. RENDER MEMBER CARDS WITH FILTER & SORT
+        function renderMembersGrid() {
+            let processed = [...rawMembersData];
+
+            // A. Search Filter
+            if (searchQuery.trim() !== '') {
+                const q = searchQuery.toLowerCase();
+                processed = processed.filter(m => 
+                    (m.name && m.name.toLowerCase().includes(q)) ||
+                    (m.fbName && m.fbName.toLowerCase().includes(q)) ||
+                    (m.memberNumber && m.memberNumber.toString().includes(q))
+                );
+            }
+
+            // B. Status Filter
+            if (currentFilter !== 'all') {
+                processed = processed.filter(m => m.status === currentFilter);
+            }
+
+            // C. Sort
+            processed.sort((a, b) => {
+                if (currentSort === 'name') {
+                    return (a.name || '').localeCompare(b.name || '');
+                } else if (currentSort === 'recent') {
+                    // Simple priority for active status or string compare
+                    return (a.status === 'active' ? -1 : 1);
+                } else {
+                    // Default Sort by Member Number
+                    return (a.memberNumber || 0) - (b.memberNumber || 0);
+                }
+            });
+
+            // Render to DOM
+            if (processed.length === 0) {
+                membersGrid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fa-solid fa-user-slash"></i>
+                        <p>No members found matching your filters.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            membersGrid.innerHTML = processed.map(member => createMemberCardHTML(member)).join('');
+        }
+
+        // Helper: Generate HTML for Single Member Card
+        function createMemberCardHTML(m) {
+            const status = m.status || 'offline';
+            const statusPillClass = `pill-${status}`;
+            const statusDotClass = `status-dot-${status}`;
+            const avatarImg = m.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(m.name || 'User')}&background=random&color=fff`;
+
+            return `
+                <div class="glass-panel member-card">
+                    <span class="member-tag">#${m.memberNumber || '0'}</span>
+                    
+                    <div class="member-header">
+                        <div class="avatar-wrap">
+                            <img src="${avatarImg}" alt="${m.name || 'Member'}" class="member-avatar" onerror="this.src='https://ui-avatars.com/api/?name=User'">
+                            <div class="status-badge-dot ${statusDotClass}"></div>
+                        </div>
+                        <div class="member-info">
+                            <h4 title="${m.name || 'Unknown'}">${m.name || 'Unknown Member'}</h4>
+                            <a href="https://facebook.com/${m.fbName || ''}" target="_blank" class="fb-handle">
+                                <i class="fa-brands fa-facebook-messenger"></i> @${m.fbName || 'user'}
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="member-body">
+                        <div class="info-row">
+                            <span>Status</span>
+                            <span class="status-pill ${statusPillClass}">
+                                <i class="fa-solid fa-circle" style="font-size: 0.5rem;"></i> ${status}
+                            </span>
+                        </div>
+                        <div class="info-row">
+                            <span>Last Active</span>
+                            <span>${m.lastActive || 'N/A'}</span>
+                        </div>
+                        <div class="info-row">
+                            <span>Joined</span>
+                            <span>${m.joinDate || 'N/A'}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 6. EVENT LISTENERS FOR CONTROLS
+        searchInput.addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            renderMembersGrid();
+        });
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.getAttribute('data-filter');
+                renderMembersGrid();
+            });
+        });
+
+        sortSelect.addEventListener('change', (e) => {
+            currentSort = e.target.value;
+            renderMembersGrid();
+        });
+    </script>
+</body>
+</html>
